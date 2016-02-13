@@ -2,6 +2,7 @@
 rm controls_fhemabfall.txt
 find ./FHEM -type f \( ! -iname ".*" \) -print0 | while IFS= read -r -d '' f; 
   do
+   echo "DEL ${f}" >> controls_fhemabfall.txt
    out="UPD "$(stat -c %y  $f | cut -d. -f1)" "$(stat -c %s $f)" ${f}"
    echo ${out//.\//} >> controls_fhemabfall.txt
 done

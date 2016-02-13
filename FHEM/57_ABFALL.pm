@@ -1,4 +1,4 @@
-# $Id: 57_ABFALL.pm 10581 2016-01-21 05:20:49Z uniqueck $
+# $Id: 57_ABFALL.pm 10582 2016-02-13 01:03:00Z uniqueck $
 ###########################
 #	ABFALL
 #	
@@ -11,6 +11,7 @@ use warnings;
 use POSIX;
 use Date::Parse;
 use Time::Local;
+use Time::Piece;
 
 sub ABFALL_Initialize($)
 {
@@ -22,8 +23,9 @@ sub ABFALL_Initialize($)
 	$hash->{AttrFn}   = "ABFALL_Attr";
 	$hash->{NotifyFn}   = "ABFALL_Notify";
 	
-	$hash->{AttrList} = "abfall_clear_reading_name ".
+	$hash->{AttrList} = "abfall_clear_reading_regex ".
 		"disable:0,1 "
+		."weekday_mapping "
 		.$readingFnAttributes;
 }
 sub ABFALL_Define($$){
@@ -108,6 +110,7 @@ sub ABFALL_GetUpdate($){
 			bdate => $tempstart[0],
 			btime => $tempstart[1],
 			summary => $item->[1],
+			weekday => $item->[2],
 			source => $item->[3],
 			location => $item->[4],
 			edate => $tempend[0],
@@ -127,13 +130,14 @@ sub ABFALL_GetUpdate($){
 	my $nextAbfall_tage = -1;
 	my $nextAbfall_text;
 	my $nextAbfall_datum;
+	my $nextAbfall_weekday;
 	my $next_readingTermin = "";
 	
-	my $cleanReadingName = AttrVal($name,"abfall_clear_reading_name","");
+	my $cleanReadingRegex = AttrVal($name,"abfall_clear_reading_regex","");
 	
 	for my $termin (@sdata) {
-		if ($cleanReadingName){
-			$termin->{summary} =~ s/($cleanReadingName)//g; 
+		if ($cleanReadingRegex){
+			$termin->{summary} =~ s/($cleanReadingRegex)//g; 
 		}
 		my $readingTermin = $termin->{summary};
 		$readingTermin =~ s/($replacementKeys)/$replacement{$1}/g;
@@ -142,11 +146,14 @@ sub ABFALL_GetUpdate($){
 			$nextAbfall_text = $termin->{summary};
 			$nextAbfall_tage = $termin->{tage};
 			$nextAbfall_datum = $termin->{bdate};
+			$nextAbfall_weekday = $termin->{weekday};
 			$next_readingTermin = $readingTermin;
 		}	
 		readingsBulkUpdate($hash, $readingTermin ."_tage", $termin->{tage});
 		readingsBulkUpdate($hash, $readingTermin ."_text", $termin->{summary});
 		readingsBulkUpdate($hash, $readingTermin ."_datum", $termin->{bdate});
+		readingsBulkUpdate($hash, $readingTermin ."_wochentag", $termin->{weekday});
+	
 	}
 	
 	if ($nextAbfall_tage > -1) {
@@ -154,6 +161,7 @@ sub ABFALL_GetUpdate($){
 		readingsBulkUpdate($hash, "next_tage", $nextAbfall_tage);
 		readingsBulkUpdate($hash, "next_text", $nextAbfall_text);
 		readingsBulkUpdate($hash, "next_datum", $nextAbfall_datum);
+		readingsBulkUpdate($hash, "next_wochentag", $nextAbfall_weekday);
 
 		readingsBulkUpdate($hash, "state", $nextAbfall_tage);
 	} else {
@@ -165,6 +173,25 @@ sub ABFALL_GetUpdate($){
 sub ABFALL_Attr(@) {
 	my ($cmd,$name,$attrName,$attrVal) = @_;
 	my $hash = $defs{$name};
+	
+	if ($cmd eq "set") {
+		if ($attrName eq "weekday_mapping") {
+			my @weekdayMappingSplitted = split( "\ ", $attrVal );
+			if (int(@weekdayMappingSplitted) != 7) {
+				Log3 $name, 4, "ABFALL_Attr ($name) - $attrVal is a wrong weekday_mapping format";
+				return ("ABFALL_Attr: $attrVal is a wrong mapping format. Format is a array like this So Mo Di Mi Do Fr Sa");
+			} 
+		} elsif ($attrName eq "abfall_clear_reading_regex") {
+			eval { qr/$attrVal/ };
+			if ($@) {
+				Log3 $name, 4, "ABFALL_Attr ($name) - $attrVal invalid regex: $@";
+				return "ABFALL_Attr ($name) - $attrVal invalid regex";
+			}
+		}
+		
+	}
+	
+	
 	return undef;
 }
 
@@ -203,6 +230,11 @@ sub ABFALL_getsummery($){
 	my $all = CallFn($calendername, "GetFn", $defs{$calendername},(" ","text", "next"));
 	my @termine=split(/\n/,$all);
 	
+	my $wdMapping = AttrVal($name,"weekday_mapping","Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag");
+	my @days = split("\ ", $wdMapping);
+	Log3 $name, 4,  "ABFALL_getSummary($name) - weekDayMapping (@days)" ;
+		
+	
 	foreach my $eachTermin (@termine){
 		Log3 $name, 5,  "ABFALL_getSummary($name) - " . $eachTermin ;
 		
@@ -213,9 +245,13 @@ sub ABFALL_getsummery($){
 		my $termintext =  $eachTermin;
 		$termintext =~ s/($SplitDt[0])//g;
 		$termintext =~ s/($SplitDt[1])//g;
+		
+		my $tpDate    = Time::Piece->strptime($SplitDt[0], '%d.%m.%y');
+		my $wdayname = $tpDate->day(@days);
 			
 		# Loggen, welcher Termin gerader gelesen wurde
-		Log3 $name, 3,  "ABFALL_getSummary($name) - " . $SplitDt[0] . " - " . $termintext . " - " . $dayDiff . " Tage";
+		Log3 $name, 3,  "ABFALL_getSummary($name) - " . $SplitDt[0] . " - " . $wdayname ." - ". $termintext . " - " . $dayDiff . " Tage";
+		
 		
 		my $foundItem = ();
 		foreach my $item (@terminliste ){
@@ -226,15 +262,16 @@ sub ABFALL_getsummery($){
 			last if ($foundItem);		
 		}
 		if ($foundItem) {
-			Log3 $name, 5, "ABFALL_getSummary($name) - exists - " . $foundItem->[0] . " - " .  $foundItem->[1] . " - " . $foundItem->[7] . " Tage" ;
+			Log3 $name, 5, "ABFALL_getSummary($name) - exists - " . $foundItem->[0] . " - " . $foundItem->[2] . " - " .  $foundItem->[1] . " - " . $foundItem->[7] . " Tage" ;
 			if ($eventDate < $foundItem->[6] && $eventDate > $t) {
-				Log3 $name, 3, "ABFALL_getSummary($name) - change - " . $foundItem->[0] . " - " .  $foundItem->[7] .  " to " . $dayDiff . " Tage"  ;
+				Log3 $name, 3, "ABFALL_getSummary($name) - change - " . $foundItem->[0] ." - " . $foundItem->[2] . " - " .  $foundItem->[7] .  " to " . $dayDiff . " Tage"  ;
 				$foundItem->[6] = $eventDate;
+				$foundItem->[2] = $wdayname;
 				$foundItem->[0] = $SplitDt[0];
 				$foundItem->[7] = $dayDiff;	
 			}				
 		} else {
-			push(@terminliste, [$SplitDt[0], $termintext, "", $calendername, "", "", $eventDate, $dayDiff]);
+			push(@terminliste, [$SplitDt[0], $termintext, $wdayname, $calendername, "", "", $eventDate, $dayDiff]);
 		}
 	};
 	return @terminliste;
@@ -259,8 +296,10 @@ sub ABFALL_getsummery($){
 	<ul>
 		<li><a href="#readingFnAttributes">readingFnAttributes</a></li>
 		<br>
-		<li><b>abfall_clear_reading_name</b></li>
-			remove part of the summary text<br>
+		<li><b>abfall_clear_reading_regex</b></li>
+			regex to remove part of the summary text<br>
+		<li><b>weekday_mapping</b></li>
+			mapping for the days of week<br>
 	</ul>
 =end html
 
@@ -282,8 +321,11 @@ sub ABFALL_getsummery($){
 	<ul>
 		<li><a href="#readingFnAttributes">readingFnAttributes</a></li>
 		<br>
-		<li><b>abfall_clear_reading_name</b></li>
-			entfernt einen Bestandteil des Terminnamens<br>
+		<li><b>abfall_clear_reading_regex</b></li>
+			regulärer Ausdruck zum Entfernt eines Bestandteils des Terminnamens<br>
+		<li><b>weekday_mapping</b></li>
+			Mapping der Wochentag<br>
+		
 	</ul>
 =end html_DE
 =cut
