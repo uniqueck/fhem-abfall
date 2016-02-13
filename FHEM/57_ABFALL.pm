@@ -211,6 +211,10 @@ sub ABFALL_Notify($$)
 
   foreach my $event (@{$dev_hash->{CHANGED}}) {
     Log3 $ownName, 3,  "ABFALL_Notify($ownName) - Event: " . $event;
+    if ($event eq "triggered")
+    {
+	ABFALL_GetUpdate($own_hash);
+    }
     #
     # Examples:
     # $event = "readingname: value" 
