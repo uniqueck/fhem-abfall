@@ -1,4 +1,4 @@
-# $Id: 57_ABFALL.pm 11019 2016-02-13 02:02:00Z uniqueck $
+# $Id: 57_ABFALL.pm 11019 2016-02-16 01:55:00Z uniqueck $
 ###########################
 #	ABFALL
 #	
@@ -99,33 +99,18 @@ sub ABFALL_GetUpdate($){
 	my @termineNew;
 	foreach my $item (@termine ){
 		my @tempstart=split(/\s+/,$item->[0]);
-		Log3 $name, 3, "ABFALL_GetUpdate ($name) - @tempstart";
-		my @tempend=split(/\s+/,$item->[2]);
-		my ($D,$M,$Y)=split(/\./,$tempstart[0]);
-		my @bts=str2time($M."/".$D."/".$Y." ".$tempstart[1]);
-		#replace the "\," with ","
 		$item->[1] =~ s/\\,/,/g;
 		$item->[4] =~ s/\\,/,/g;
 		push @termineNew,{
 			bdate => $tempstart[0],
-			btime => $tempstart[1],
 			summary => $item->[1],
 			weekday => $item->[2],
 			source => $item->[3],
-			location => $item->[4],
-			edate => $tempend[0],
-			etime => $tempend[1],
-			btimestamp => $bts[0],
 			mode => $item->[5],
+			readingName => $item->[4],
 			tage => $item->[7]};
-				}
-	# sort the array by btimestamp
-	my @sdata = map  $_->[0], 
-			sort { $a->[1][0] <=> $b->[1][0] }
-            map  [$_, [$_->{btimestamp}]], @termineNew;
+		}
 	
-	my %replacement = ("ä" => "ae", "Ä" => "Ae", "ü" => "ue", "Ü" => "Ue", "ö" => "oe", "Ö" => "Oe", "ß" => "ss", " " => "", "," => "", "/" => "" );
-	my $replacementKeys= join ("|", keys(%replacement));
 	
 	my $nextAbfall_tage = -1;
 	my $nextAbfall_text;
@@ -133,14 +118,8 @@ sub ABFALL_GetUpdate($){
 	my $nextAbfall_weekday;
 	my $next_readingTermin = "";
 	
-	my $cleanReadingRegex = AttrVal($name,"abfall_clear_reading_regex","");
-	
-	for my $termin (@sdata) {
-		if ($cleanReadingRegex){
-			$termin->{summary} =~ s/($cleanReadingRegex)//g; 
-		}
-		my $readingTermin = $termin->{summary};
-		$readingTermin =~ s/($replacementKeys)/$replacement{$1}/g;
+	for my $termin (@termineNew) {
+		my $readingTermin = $termin->{readingName};
 		
 		if ($nextAbfall_tage == -1 || $nextAbfall_tage > $termin->{tage}) {
 			$nextAbfall_text = $termin->{summary};
@@ -214,15 +193,9 @@ sub ABFALL_Notify($$)
     if ($event eq "triggered")
     {
 	ABFALL_GetUpdate($own_hash);
-    }
-    #
-    # Examples:
-    # $event = "readingname: value" 
-    # or
-    # $event = "INITIALIZED" (for device "global")
-    #
-    # processing $event with further code
+    }    
   }
+  return undef;
 }
 
 sub ABFALL_getsummery($){
@@ -231,7 +204,13 @@ sub ABFALL_getsummery($){
 	my $name = $hash->{NAME};
 	my $calendername  = $hash->{KALENDER};
 	my $t  = time;
+	my $cleanReadingRegex = AttrVal($name,"abfall_clear_reading_regex","");
+	
+	my %replacement = ("ä" => "ae", "Ä" => "Ae", "ü" => "ue", "Ü" => "Ue", "ö" => "oe", "Ö" => "Oe", "ß" => "ss", " " => "", "," => "", "/" => "" );
+	my $replacementKeys= join ("|", keys(%replacement));
+	
 	my $all = CallFn($calendername, "GetFn", $defs{$calendername},(" ","text", "next"));
+	
 	my @termine=split(/\n/,$all);
 	
 	my $wdMapping = AttrVal($name,"weekday_mapping","Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag");
@@ -249,6 +228,14 @@ sub ABFALL_getsummery($){
 		my $termintext =  $eachTermin;
 		$termintext =~ s/($SplitDt[0])//g;
 		$termintext =~ s/($SplitDt[1])//g;
+		
+		if ($cleanReadingRegex){
+			$termintext =~ s/$cleanReadingRegex//g; 
+		}		
+		my $cleanReadingName = $termintext;
+		$cleanReadingName =~ s/($replacementKeys)/$replacement{$1}/g;
+		
+		
 		
 		my $tpDate    = Time::Piece->strptime($SplitDt[0], '%d.%m.%y');
 		my $wdayname = $tpDate->day(@days);
@@ -275,7 +262,7 @@ sub ABFALL_getsummery($){
 				$foundItem->[7] = $dayDiff;	
 			}				
 		} else {
-			push(@terminliste, [$SplitDt[0], $termintext, $wdayname, $calendername, "", "", $eventDate, $dayDiff]);
+			push(@terminliste, [$SplitDt[0], $termintext, $wdayname, $calendername, $cleanReadingName, "", $eventDate, $dayDiff]);
 		}
 	};
 	return @terminliste;
