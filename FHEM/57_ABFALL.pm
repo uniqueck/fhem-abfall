@@ -25,7 +25,7 @@ sub ABFALL_Initialize($)
 	
 	$hash->{AttrList} = "abfall_clear_reading_regex ".
 		"disable:0,1 "
-		."weekday_mapping "
+		."weekday_mapping calendarname_praefix:1,0 "
 		.$readingFnAttributes;
 }
 sub ABFALL_Define($$){
@@ -42,23 +42,16 @@ sub ABFALL_Define($$){
 	       }
 	}
 	 
-	my $calendar = $a[2];
-	
-	return "wrong define syntax: you must specify a device name for using ABFALL" if(!defined($calendar));
-	return "wrong define syntax: define <name> ABFALL <name> <interval>" if(@a < 3 || @a > 4);
-    
-	
-	if($init_done)
+	 my @calendars = split( ",", $a[2] );
+	 
+	foreach my $calender (@calendars)
 	{
-		return "define error: the selected device $calendar does not exist." unless(defined($defs{$calendar}));
-
-		Log3 $name, 3, "ABFALL ($name) - WARNING - selected device $calendar ist not of type Calendar" unless($defs{$calendar}->{TYPE} eq "Calendar");
+		return "invalid Calendername \"$calender\", define it first" if((devspec2array("NAME=$calender")) != 1 );	
 	}
-	
+	$hash->{KALENDER} 	= $a[2];
+    
 	$hash->{NAME} 	= $name;
-	$hash->{KALENDER} 	= $calendar;
 	$hash->{STATE}	= "Initialized";
-	$hash->{INTERVAL} = $inter;
 	InternalTimer(gettimeofday()+2, "ABFALL_GetUpdate", $hash, 0);
 	return undef;
 }
@@ -84,7 +77,7 @@ sub ABFALL_GetUpdate($){
 	#cleanup readings
 	delete ($hash->{READINGS});
 	# new timer
-	InternalTimer(gettimeofday()+$hash->{INTERVAL}, "ABFALL_GetUpdate", $hash, 1);
+	# InternalTimer(gettimeofday()+$hash->{INTERVAL}, "ABFALL_GetUpdate", $hash, 1);
 	readingsBeginUpdate($hash); #start update
 	my @termine =  ABFALL_getsummery($hash);
 	my $counter = 1;
@@ -108,8 +101,15 @@ sub ABFALL_GetUpdate($){
 			source => $item->[3],
 			mode => $item->[5],
 			readingName => $item->[4],
+			calendar => $item->[6],
 			tage => $item->[7]};
 		}
+	
+	my $nowAbfall_tage = -1;
+	my $nowAbfall_text;
+	my $nowAbfall_datum;
+	my $nowAbfall_weekday;
+	my $now_readingTermin = "";
 	
 	
 	my $nextAbfall_tage = -1;
@@ -121,7 +121,13 @@ sub ABFALL_GetUpdate($){
 	for my $termin (@termineNew) {
 		my $readingTermin = $termin->{readingName};
 		
-		if ($nextAbfall_tage == -1 || $nextAbfall_tage > $termin->{tage}) {
+		if ($termin->{tage} == 0) {
+			$nowAbfall_text = $termin->{summary};
+			$nowAbfall_tage = $termin->{tage};
+			$nowAbfall_datum = $termin->{bdate};
+			$nowAbfall_weekday = $termin->{weekday};
+			$now_readingTermin = $readingTermin;
+		} elsif	($nextAbfall_tage == -1 || $nextAbfall_tage > $termin->{tage}) {
 			$nextAbfall_text = $termin->{summary};
 			$nextAbfall_tage = $termin->{tage};
 			$nextAbfall_datum = $termin->{bdate};
@@ -132,8 +138,14 @@ sub ABFALL_GetUpdate($){
 		readingsBulkUpdate($hash, $readingTermin ."_text", $termin->{summary});
 		readingsBulkUpdate($hash, $readingTermin ."_datum", $termin->{bdate});
 		readingsBulkUpdate($hash, $readingTermin ."_wochentag", $termin->{weekday});
-	
 	}
+	
+	if ($nowAbfall_tage == 0) {
+		readingsBulkUpdate($hash, "now", $now_readingTermin);
+		readingsBulkUpdate($hash, "now_text", $nowAbfall_text);
+		readingsBulkUpdate($hash, "now_datum", $nowAbfall_datum);
+		readingsBulkUpdate($hash, "now_wochentag", $nowAbfall_weekday);
+	}	
 	
 	if ($nextAbfall_tage > -1) {
 		readingsBulkUpdate($hash, "next", $next_readingTermin."_".$nextAbfall_tage);
@@ -184,16 +196,18 @@ sub ABFALL_Notify($$)
 
   my $devName = $dev_hash->{NAME}; # Device that created the events
   Log3 $ownName, 5,  "ABFALL_Notify($ownName) - Device: " . $devName;
-  return "" if($devName ne $own_hash->{KALENDER}); # Return withount any further action if the device of the event isn't the calendar
-
-  my $count = @{$dev_hash->{CHANGED}}; # number of events / changes
-
-  foreach my $event (@{$dev_hash->{CHANGED}}) {
-    Log3 $ownName, 3,  "ABFALL_Notify($ownName) - Event: " . $event;
-    if ($event eq "triggered")
-    {
-	ABFALL_GetUpdate($own_hash);
-    }    
+  
+  my @calendernamen = split( ",", $own_hash->{KALENDER}); 
+  
+  foreach my $calendar (@calendernamen){
+		if ($devName eq $calendar) {
+			foreach my $event (@{$dev_hash->{CHANGED}}) {
+				if ($event eq "triggered") { 
+					Log3 $ownName , 3,  "ABFALL $ownName - CALENDAR:$devName triggered, updating ABFALL $ownName ...";
+					ABFALL_GetUpdate($own_hash); 
+				}
+			}
+		}
   }
   return undef;
 }
@@ -202,20 +216,22 @@ sub ABFALL_getsummery($){
 	my ($hash) = @_;
 	my @terminliste ;
 	my $name = $hash->{NAME};
-	my $calendername  = $hash->{KALENDER};
+	my @calendernamen = split( ",", $hash->{KALENDER}); 
 	my $t  = time;
 	my $cleanReadingRegex = AttrVal($name,"abfall_clear_reading_regex","");
+	my $calendarNamePraefix = AttrVal($name,"calendarname_praefix","1");
 	
-	my %replacement = ("ä" => "ae", "Ä" => "Ae", "ü" => "ue", "Ü" => "Ue", "ö" => "oe", "Ö" => "Oe", "ß" => "ss", " " => "", "," => "", "/" => "" );
+	my %replacement = ("ä" => "ae", "Ä" => "Ae", "ü" => "ue", "Ü" => "Ue", "ö" => "oe", "Ö" => "Oe", "ß" => "ss", " " => "", "," => "", "/" => "", "\\." => "" );
 	my $replacementKeys= join ("|", keys(%replacement));
 	
-	my $all = CallFn($calendername, "GetFn", $defs{$calendername},(" ","text", "next"));
+	foreach my $calendername (@calendernamen){
+			my $all = CallFn($calendername, "GetFn", $defs{$calendername},(" ","text", "next"));
 	
 	my @termine=split(/\n/,$all);
 	
 	my $wdMapping = AttrVal($name,"weekday_mapping","Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag");
 	my @days = split("\ ", $wdMapping);
-	Log3 $name, 4,  "ABFALL_getSummary($name) - weekDayMapping (@days)" ;
+	Log3 $name, 5,  "ABFALL_getSummary($name) - weekDayMapping (@days)" ;
 		
 	
 	foreach my $eachTermin (@termine){
@@ -233,7 +249,11 @@ sub ABFALL_getsummery($){
 			$termintext =~ s/$cleanReadingRegex//g; 
 		}		
 		my $cleanReadingName = $termintext;
-		$cleanReadingName =~ s/($replacementKeys)/$replacement{$1}/g;
+		
+		if ($calendarNamePraefix eq "1") {
+			$cleanReadingName = $calendername . "_" . $cleanReadingName;
+		}
+		$cleanReadingName =~ s/($replacementKeys)/$replacement{$1}/eg;
 		
 		
 		
@@ -241,7 +261,7 @@ sub ABFALL_getsummery($){
 		my $wdayname = $tpDate->day(@days);
 			
 		# Loggen, welcher Termin gerader gelesen wurde
-		Log3 $name, 3,  "ABFALL_getSummary($name) - " . $SplitDt[0] . " - " . $wdayname ." - ". $termintext . " - " . $dayDiff . " Tage";
+		Log3 $name, 5,  "ABFALL_getSummary($name) - " . $SplitDt[0] . " - " . $wdayname ." - ". $termintext . " - " . $dayDiff . " Tage";
 		
 		
 		my $foundItem = ();
@@ -255,7 +275,7 @@ sub ABFALL_getsummery($){
 		if ($foundItem) {
 			Log3 $name, 5, "ABFALL_getSummary($name) - exists - " . $foundItem->[0] . " - " . $foundItem->[2] . " - " .  $foundItem->[1] . " - " . $foundItem->[7] . " Tage" ;
 			if ($eventDate < $foundItem->[6] && $eventDate > $t) {
-				Log3 $name, 3, "ABFALL_getSummary($name) - change - " . $foundItem->[0] ." - " . $foundItem->[2] . " - " .  $foundItem->[7] .  " to " . $dayDiff . " Tage"  ;
+				Log3 $name, 5, "ABFALL_getSummary($name) - change - " . $foundItem->[0] ." - " . $foundItem->[2] . " - " .  $foundItem->[7] .  " to " . $dayDiff . " Tage"  ;
 				$foundItem->[6] = $eventDate;
 				$foundItem->[2] = $wdayname;
 				$foundItem->[0] = $SplitDt[0];
@@ -265,6 +285,8 @@ sub ABFALL_getsummery($){
 			push(@terminliste, [$SplitDt[0], $termintext, $wdayname, $calendername, $cleanReadingName, "", $eventDate, $dayDiff]);
 		}
 	};
+	}
+	
 	return @terminliste;
 }
 1;
