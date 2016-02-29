@@ -241,6 +241,9 @@ sub ABFALL_getsummery($){
 		my @SplitDate = split(/\./,$SplitDt[0]);
 		my $eventDate = timelocal(0,0,0,$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);
 		my $dayDiff = floor(($eventDate - $t) / 60 / 60 / 24 + 1);
+		# skip Termine, welche in der Vergangenheit liegen
+		next if $dayDiff < 0;
+		
 		my $termintext =  $eachTermin;
 		$termintext =~ s/($SplitDt[0])//g;
 		$termintext =~ s/($SplitDt[1])//g;
