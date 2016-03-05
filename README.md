@@ -18,6 +18,7 @@ The Perl module can be loaded directly into your FHEM installation. For this ple
 - disable	
 	
 	valid values 0 and 1, set to 1 to disable device
+	
 - weekday_mapping
 
 	set a map of names for the weekdays, for example Su Mo Tue Wed Thu Fr Sa
