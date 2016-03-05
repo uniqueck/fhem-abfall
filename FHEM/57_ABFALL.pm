@@ -137,9 +137,9 @@ sub ABFALL_GetUpdate($){
 			$nextAbfall_datum = $termin->{bdate};
 			$nextAbfall_weekday = $termin->{weekday};
 			if ($next_readingTermin eq "") {
-				$next_readingTermin = $readingTermin . "_" .  $nextAbfall_tage;
+				$next_readingTermin = $readingTermin;
 			} else {
-				$next_readingTermin .= $delimiter_reading . $readingTermin . "_" . $nextAbfall_tage;
+				$next_readingTermin .= $delimiter_reading . $readingTermin;
 			}			
 		}	
 		readingsBulkUpdate($hash, $readingTermin ."_tage", $termin->{tage});
@@ -156,6 +156,9 @@ sub ABFALL_GetUpdate($){
 	}	
 	
 	if ($nextAbfall_tage > -1) {
+		if ($next_readingTermin ne "") {
+			 $next_readingTermin .= "_" .  $nextAbfall_tage
+		}
 		readingsBulkUpdate($hash, "next", $next_readingTermin);
 		readingsBulkUpdate($hash, "next_tage", $nextAbfall_tage);
 		readingsBulkUpdate($hash, "next_text", $nextAbfall_text);
