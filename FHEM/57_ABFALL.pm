@@ -325,7 +325,11 @@ sub ABFALL_getsummery($){
 		<li><b>weekday_mapping</b></li>
 			mapping for the days of week<br>
 		<li><b>calendarname_praefix </b></li>
-			add calendar name as praefix for reading<br>	
+			add calendar name as praefix for reading<br>
+		<li><b>delimiter_text_reading </b></li>
+			delimiter for join events on same day for readings now_text and next_text<br>
+		<li><b>delimiter_reading </b></li>
+			delimiter for join reading name on readings now and next<br>	
 	</ul>
 =end html
 
@@ -353,7 +357,12 @@ sub ABFALL_getsummery($){
 			Mapping der Wochentag<br>
 		<li><b>calendarname_praefix </b></li>
 			soll der calendar name als Präfix im reading geführt werden<br
-		
+		<li><b>delimiter_text_reading </b></li>
+			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen<br>
+			gilt nur für die Readings next_text und now_text
+		<li><b>delimiter_reading </b></li>
+			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen<br>
+			gilt nur für die readings next und now
 	</ul>
 =end html_DE
 =cut
