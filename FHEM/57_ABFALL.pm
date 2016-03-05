@@ -23,24 +23,18 @@ sub ABFALL_Initialize($)
 	$hash->{AttrFn}   = "ABFALL_Attr";
 	$hash->{NotifyFn}   = "ABFALL_Notify";
 	
-	$hash->{AttrList} = "abfall_clear_reading_regex ".
-		"disable:0,1 "
+	$hash->{AttrList} = "abfall_clear_reading_regex "
+		."disable:0,1 "
 		."weekday_mapping calendarname_praefix:1,0 "
+		."delimiter_text_reading "
+		."delimiter_reading "
 		.$readingFnAttributes;
 }
 sub ABFALL_Define($$){
 	my ( $hash, $def ) = @_;
 	my @a = split( "[ \t][ \t]*", $def );
 	return "\"set ABFALL\" needs at least an argument" if ( @a < 3 );
-	my $name = $a[0];   
-	
-	my $inter = 43200;
-	if(int(@a) == 4) { 
-		$inter = int($a[3]); 
-		if ($inter < 3600 && $inter) {
-			return "ABFALL_Define - interval too small, please use something > 3600 (sec), default is 43200 (sec)";
-	       }
-	}
+	my $name = $a[0];
 	 
 	 my @calendars = split( ",", $a[2] );
 	 
@@ -76,8 +70,6 @@ sub ABFALL_GetUpdate($){
 	Log3 $name, 3, "ABFALL_UPDATE";	
 	#cleanup readings
 	delete ($hash->{READINGS});
-	# new timer
-	# InternalTimer(gettimeofday()+$hash->{INTERVAL}, "ABFALL_GetUpdate", $hash, 1);
 	readingsBeginUpdate($hash); #start update
 	my @termine =  ABFALL_getsummery($hash);
 	my $counter = 1;
@@ -89,6 +81,10 @@ sub ABFALL_GetUpdate($){
 	($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time + 86400);
 	$year += 1900; $mon += 1; 		
 	my $datenext = sprintf('%02d.%02d.%04d', $mday, $mon, $year);
+	
+	my $delimiter_text_reading = AttrVal($name,"delimiter_text_reading"," und ");
+	my $delimiter_reading = AttrVal($name,"delimiter_reading","|");	
+	
 	my @termineNew;
 	foreach my $item (@termine ){
 		my @tempstart=split(/\s+/,$item->[0]);
@@ -106,14 +102,14 @@ sub ABFALL_GetUpdate($){
 		}
 	
 	my $nowAbfall_tage = -1;
-	my $nowAbfall_text;
+	my $nowAbfall_text = "";
 	my $nowAbfall_datum;
 	my $nowAbfall_weekday;
 	my $now_readingTermin = "";
 	
 	
 	my $nextAbfall_tage = -1;
-	my $nextAbfall_text;
+	my $nextAbfall_text = "";
 	my $nextAbfall_datum;
 	my $nextAbfall_weekday;
 	my $next_readingTermin = "";
@@ -122,17 +118,29 @@ sub ABFALL_GetUpdate($){
 		my $readingTermin = $termin->{readingName};
 		
 		if ($termin->{tage} == 0) {
-			$nowAbfall_text = $termin->{summary};
+			if($nowAbfall_text eq "") {
+				$nowAbfall_text = $termin->{summary};	
+			} else {
+				$nowAbfall_text .= $delimiter_text_reading ._ $termin->{summary};
+			}
 			$nowAbfall_tage = $termin->{tage};
 			$nowAbfall_datum = $termin->{bdate};
 			$nowAbfall_weekday = $termin->{weekday};
 			$now_readingTermin = $readingTermin;
-		} elsif	($nextAbfall_tage == -1 || $nextAbfall_tage > $termin->{tage}) {
-			$nextAbfall_text = $termin->{summary};
+		} elsif	($nextAbfall_tage == -1 || $nextAbfall_tage > $termin->{tage} || $nextAbfall_tage == $termin->{tage} ) {
+			if ($nextAbfall_text eq "") {
+				$nextAbfall_text = $termin->{summary};
+			} else {
+				$nextAbfall_text .= $delimiter_text_reading . $termin->{summary};
+			}
 			$nextAbfall_tage = $termin->{tage};
 			$nextAbfall_datum = $termin->{bdate};
 			$nextAbfall_weekday = $termin->{weekday};
-			$next_readingTermin = $readingTermin;
+			if ($next_readingTermin eq "") {
+				$next_readingTermin = $readingTermin . "_" .  $nextAbfall_tage;
+			} else {
+				$next_readingTermin .= $delimiter_reading . $readingTermin . "_" . $nextAbfall_tage;
+			}			
 		}	
 		readingsBulkUpdate($hash, $readingTermin ."_tage", $termin->{tage});
 		readingsBulkUpdate($hash, $readingTermin ."_text", $termin->{summary});
@@ -148,7 +156,7 @@ sub ABFALL_GetUpdate($){
 	}	
 	
 	if ($nextAbfall_tage > -1) {
-		readingsBulkUpdate($hash, "next", $next_readingTermin."_".$nextAbfall_tage);
+		readingsBulkUpdate($hash, "next", $next_readingTermin);
 		readingsBulkUpdate($hash, "next_tage", $nextAbfall_tage);
 		readingsBulkUpdate($hash, "next_text", $nextAbfall_text);
 		readingsBulkUpdate($hash, "next_datum", $nextAbfall_datum);
@@ -221,73 +229,73 @@ sub ABFALL_getsummery($){
 	my $cleanReadingRegex = AttrVal($name,"abfall_clear_reading_regex","");
 	my $calendarNamePraefix = AttrVal($name,"calendarname_praefix","1");
 	
-	my %replacement = ("ä" => "ae", "Ä" => "Ae", "ü" => "ue", "Ü" => "Ue", "ö" => "oe", "Ö" => "Oe", "ß" => "ss", " " => "", "," => "", "/" => "", "\\." => "" );
+	my %replacement = ("ä" => "ae", "Ä" => "Ae", "ü" => "ue", "Ü" => "Ue", "ö" => "oe", "Ö" => "Oe", "ß" => "ss" );
 	my $replacementKeys= join ("|", keys(%replacement));
 	
 	foreach my $calendername (@calendernamen){
-			my $all = CallFn($calendername, "GetFn", $defs{$calendername},(" ","text", "next"));
+		my $all = CallFn($calendername, "GetFn", $defs{$calendername},(" ","text", "next"));
 	
-	my @termine=split(/\n/,$all);
+		my @termine=split(/\n/,$all);
 	
-	my $wdMapping = AttrVal($name,"weekday_mapping","Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag");
-	my @days = split("\ ", $wdMapping);
-	Log3 $name, 5,  "ABFALL_getSummary($name) - weekDayMapping (@days)" ;
+		my $wdMapping = AttrVal($name,"weekday_mapping","Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag");
+		my @days = split("\ ", $wdMapping);
+		Log3 $name, 5,  "ABFALL_getSummary($name) - weekDayMapping (@days)" ;
 		
 	
-	foreach my $eachTermin (@termine){
-		Log3 $name, 5,  "ABFALL_getSummary($name) - " . $eachTermin ;
-		
-		my @SplitDt = split(/ /,$eachTermin);
-		my @SplitDate = split(/\./,$SplitDt[0]);
-		my $eventDate = timelocal(0,0,0,$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);
-		my $dayDiff = floor(($eventDate - $t) / 60 / 60 / 24 + 1);
-		# skip Termine, welche in der Vergangenheit liegen
-		next if $dayDiff < 0;
-		
-		my $termintext =  $eachTermin;
-		$termintext =~ s/($SplitDt[0])//g;
-		$termintext =~ s/($SplitDt[1])//g;
-		
-		if ($cleanReadingRegex){
-			$termintext =~ s/$cleanReadingRegex//g; 
-		}		
-		my $cleanReadingName = $termintext;
-		
-		if ($calendarNamePraefix eq "1") {
-			$cleanReadingName = $calendername . "_" . $cleanReadingName;
-		}
-		$cleanReadingName =~ s/($replacementKeys)/$replacement{$1}/eg;
-		
-		
-		
-		my $tpDate    = Time::Piece->strptime($SplitDt[0], '%d.%m.%y');
-		my $wdayname = $tpDate->day(@days);
+		foreach my $eachTermin (@termine){
+			Log3 $name, 5,  "ABFALL_getSummary($name) - " . $eachTermin ;
 			
-		# Loggen, welcher Termin gerader gelesen wurde
-		Log3 $name, 5,  "ABFALL_getSummary($name) - " . $SplitDt[0] . " - " . $wdayname ." - ". $termintext . " - " . $dayDiff . " Tage";
-		
-		
-		my $foundItem = ();
-		foreach my $item (@terminliste ){
-			my $tempText= $item->[1];
-			if ($tempText eq $termintext) {
-				$foundItem = $item;
+			my @SplitDt = split(/ /,$eachTermin);
+			my @SplitDate = split(/\./,$SplitDt[0]);
+			my $eventDate = timelocal(0,0,0,$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);
+			my $dayDiff = floor(($eventDate - $t) / 60 / 60 / 24 + 1);
+			# skip Termine, welche in der Vergangenheit liegen
+			next if $dayDiff < 0;
+			
+			my $termintext =  $eachTermin;
+			$termintext =~ s/($SplitDt[0])//g;
+			$termintext =~ s/($SplitDt[1])//g;
+			
+			if ($cleanReadingRegex){
+				$termintext =~ s/$cleanReadingRegex//g; 
+			}		
+			my $cleanReadingName = $termintext;
+			
+			if ($calendarNamePraefix eq "1") {
+				$cleanReadingName = $calendername . "_" . $cleanReadingName;
 			}
-			last if ($foundItem);		
-		}
-		if ($foundItem) {
-			Log3 $name, 5, "ABFALL_getSummary($name) - exists - " . $foundItem->[0] . " - " . $foundItem->[2] . " - " .  $foundItem->[1] . " - " . $foundItem->[7] . " Tage" ;
-			if ($eventDate < $foundItem->[6] && $eventDate > $t) {
-				Log3 $name, 5, "ABFALL_getSummary($name) - change - " . $foundItem->[0] ." - " . $foundItem->[2] . " - " .  $foundItem->[7] .  " to " . $dayDiff . " Tage"  ;
-				$foundItem->[6] = $eventDate;
-				$foundItem->[2] = $wdayname;
-				$foundItem->[0] = $SplitDt[0];
-				$foundItem->[7] = $dayDiff;	
-			}				
-		} else {
-			push(@terminliste, [$SplitDt[0], $termintext, $wdayname, $calendername, $cleanReadingName, "", $eventDate, $dayDiff]);
-		}
-	};
+			$cleanReadingName =~ s/($replacementKeys)/$replacement{$1}/eg;
+			# remove not valid chars for a reading name
+			$cleanReadingName =~ tr/a-zA-Z0-9\-_//dc;
+			
+			my $tpDate    = Time::Piece->strptime($SplitDt[0], '%d.%m.%y');
+			my $wdayname = $tpDate->day(@days);
+				
+			# Loggen, welcher Termin gerader gelesen wurde
+			Log3 $name, 5,  "ABFALL_getSummary($name) - " . $SplitDt[0] . " - " . $wdayname ." - ". $termintext . " - " . $dayDiff . " Tage";
+			
+			
+			my $foundItem = ();
+			foreach my $item (@terminliste ){
+				my $tempText= $item->[1];
+				if ($tempText eq $termintext) {
+					$foundItem = $item;
+				}
+				last if ($foundItem);		
+			}
+			if ($foundItem) {
+				Log3 $name, 5, "ABFALL_getSummary($name) - exists - " . $foundItem->[0] . " - " . $foundItem->[2] . " - " .  $foundItem->[1] . " - " . $foundItem->[7] . " Tage" ;
+				if ($eventDate < $foundItem->[6] && $eventDate > $t) {
+					Log3 $name, 5, "ABFALL_getSummary($name) - change - " . $foundItem->[0] ." - " . $foundItem->[2] . " - " .  $foundItem->[7] .  " to " . $dayDiff . " Tage"  ;
+					$foundItem->[6] = $eventDate;
+					$foundItem->[2] = $wdayname;
+					$foundItem->[0] = $SplitDt[0];
+					$foundItem->[7] = $dayDiff;	
+				}				
+			} else {
+				push(@terminliste, [$SplitDt[0], $termintext, $wdayname, $calendername, $cleanReadingName, "", $eventDate, $dayDiff]);
+			}
+		};
 	}
 	
 	return @terminliste;
@@ -316,6 +324,8 @@ sub ABFALL_getsummery($){
 			regex to remove part of the summary text<br>
 		<li><b>weekday_mapping</b></li>
 			mapping for the days of week<br>
+		<li><b>calendarname_praefix </b></li>
+			add calendar name as praefix for reading<br>	
 	</ul>
 =end html
 
@@ -341,6 +351,8 @@ sub ABFALL_getsummery($){
 			regulärer Ausdruck zum Entfernt eines Bestandteils des Terminnamens<br>
 		<li><b>weekday_mapping</b></li>
 			Mapping der Wochentag<br>
+		<li><b>calendarname_praefix </b></li>
+			soll der calendar name als Präfix im reading geführt werden<br
 		
 	</ul>
 =end html_DE
