@@ -4,7 +4,15 @@ ABFALL is a fhem modul, which creates readings based on one or more calendar dev
 ## How to install
 The Perl module can be loaded directly into your FHEM installation. For this please copy the below command into the FHEM command line.
 
-	update all https://raw.githubusercontent.com/uniqueck/fhem-abfall/master/controls_fhemabfall.txt 
+	update all https://raw.githubusercontent.com/uniqueck/fhem-abfall/master/controls_fhemabfall.txt
+	
+### Create a device
+	
+	define myABFALL ABFALL <name of a calendar device>
+	
+### Attributes
+	
+	
 
 ## How to Update
 The Perl module can be update directly with standard fhem update process. For this please copy the below command into the FHEM command line.
