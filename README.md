@@ -22,9 +22,7 @@ The Perl module can be loaded directly into your FHEM installation. For this ple
 - weekday_mapping
 
 	set a map of names for the weekdays, for example Su Mo Tue Wed Thu Fr Sa
- 
 	start with Sunday
- 
 	default value is Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag
 - calendarname_praefix
 
@@ -32,7 +30,6 @@ The Perl module can be loaded directly into your FHEM installation. For this ple
 - delimiter\_text_reading
 	
 	if events exists on the same day, this is the delimiter to join these events
- 	
 	only for the readings next_text and now_text 
 - delimiter_reading
 	
