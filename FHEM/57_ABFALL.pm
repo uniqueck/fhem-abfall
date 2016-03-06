@@ -72,6 +72,7 @@ sub ABFALL_GetUpdate($){
 	delete ($hash->{READINGS});
 	readingsBeginUpdate($hash); #start update
 	my @termine =  ABFALL_getsummery($hash);
+	
 	my $counter = 1;
 	my $samedatecounter = 2;
 	my $lastterm;
@@ -87,6 +88,7 @@ sub ABFALL_GetUpdate($){
 	
 	my @termineNew;
 	foreach my $item (@termine ){
+		Log3 $name, 5, "ABFALL_GetUpdate ($name) - $item->[6] - $item->[4]";
 		my @tempstart=split(/\s+/,$item->[0]);
 		$item->[1] =~ s/\\,/,/g;
 		$item->[4] =~ s/\\,/,/g;
@@ -116,6 +118,7 @@ sub ABFALL_GetUpdate($){
 	
 	for my $termin (@termineNew) {
 		my $readingTermin = $termin->{readingName};
+		Log3 $name, 5, "ABFALL_GetUpdate ($name) - $readingTermin";
 		
 		if ($termin->{tage} == 0) {
 			if($nowAbfall_text eq "") {
@@ -242,11 +245,11 @@ sub ABFALL_getsummery($){
 	
 		my $wdMapping = AttrVal($name,"weekday_mapping","Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag");
 		my @days = split("\ ", $wdMapping);
-		Log3 $name, 5,  "ABFALL_getSummary($name) - weekDayMapping (@days)" ;
+		Log3 $name, 5,  "ABFALL_getSummary($name) - calendar($calendername) - weekDayMapping (@days)" ;
 		
 	
 		foreach my $eachTermin (@termine){
-			Log3 $name, 5,  "ABFALL_getSummary($name) - " . $eachTermin ;
+			Log3 $name, 5,  "ABFALL_getSummary($name) - calendar($calendername) - " . $eachTermin ;
 			
 			my @SplitDt = split(/ /,$eachTermin);
 			my @SplitDate = split(/\./,$SplitDt[0]);
@@ -275,21 +278,22 @@ sub ABFALL_getsummery($){
 			my $wdayname = $tpDate->day(@days);
 				
 			# Loggen, welcher Termin gerader gelesen wurde
-			Log3 $name, 5,  "ABFALL_getSummary($name) - " . $SplitDt[0] . " - " . $wdayname ." - ". $termintext . " - " . $dayDiff . " Tage";
+			Log3 $name, 5,  "ABFALL_getSummary($name) - calendar($calendername) - " . $SplitDt[0] . " - " . $wdayname ." - ". $termintext . " - " . $dayDiff . " Tage";
 			
 			
 			my $foundItem = ();
 			foreach my $item (@terminliste ){
 				my $tempText= $item->[1];
-				if ($tempText eq $termintext) {
+				my $tempCalName= $item->[3];
+				if ($tempText eq $termintext && $tempCalName eq $calendername) {
 					$foundItem = $item;
 				}
 				last if ($foundItem);		
 			}
 			if ($foundItem) {
-				Log3 $name, 5, "ABFALL_getSummary($name) - exists - " . $foundItem->[0] . " - " . $foundItem->[2] . " - " .  $foundItem->[1] . " - " . $foundItem->[7] . " Tage" ;
+				Log3 $name, 5, "ABFALL_getSummary($name) - calendar($calendername) - exists - " . $foundItem->[0] . " - " . $foundItem->[2] . " - " .  $foundItem->[1] . " - " . $foundItem->[7] . " Tage" ;
 				if ($eventDate < $foundItem->[6] && $eventDate > $t) {
-					Log3 $name, 5, "ABFALL_getSummary($name) - change - " . $foundItem->[0] ." - " . $foundItem->[2] . " - " .  $foundItem->[7] .  " to " . $dayDiff . " Tage"  ;
+					Log3 $name, 5, "ABFALL_getSummary($name) - calendar($calendername) - change - " . $foundItem->[0] ." - " . $foundItem->[2] . " - " .  $foundItem->[7] .  " to " . $dayDiff . " Tage"  ;
 					$foundItem->[6] = $eventDate;
 					$foundItem->[2] = $wdayname;
 					$foundItem->[0] = $SplitDt[0];
