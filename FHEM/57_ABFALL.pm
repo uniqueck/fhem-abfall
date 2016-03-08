@@ -124,7 +124,7 @@ sub ABFALL_GetUpdate($){
 			if($nowAbfall_text eq "") {
 				$nowAbfall_text = $termin->{summary};	
 			} else {
-				$nowAbfall_text .= $delimiter_text_reading ._ $termin->{summary};
+				$nowAbfall_text .= $delimiter_text_reading . "_" . $termin->{summary};
 			}
 			$nowAbfall_tage = $termin->{tage};
 			$nowAbfall_datum = $termin->{bdate};
