@@ -264,14 +264,14 @@ sub ABFALL_getsummery($){
 			
 			
 			# skip termin of filter conditions - Start
-			my $keepTermin = false;
+			my $keepTermin = 'false';
 			foreach my $eachFilter (@filterArray) {
 				if (index($eachTermin, $eachFilter) != -1) {
-					$keepTermin = true;
+					$keepTermin = 'true';
 				}
 				last if ($keepTermin);
 			}
-			next if ($keepTermin == false && $filter ne "");
+			next if ($keepTermin eq 'false' && $filter ne "");
 			
 			my $termintext =  $eachTermin;
 			$termintext =~ s/($SplitDt[0])//g;
