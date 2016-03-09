@@ -28,6 +28,7 @@ sub ABFALL_Initialize($)
 		."weekday_mapping calendarname_praefix:1,0 "
 		."delimiter_text_reading "
 		."delimiter_reading "
+		."filter "
 		.$readingFnAttributes;
 }
 sub ABFALL_Define($$){
@@ -36,7 +37,7 @@ sub ABFALL_Define($$){
 	return "\"set ABFALL\" needs at least an argument" if ( @a < 3 );
 	my $name = $a[0];
 	 
-	 my @calendars = split( ",", $a[2] );
+	my @calendars = split( ",", $a[2] );
 	 
 	foreach my $calender (@calendars)
 	{
@@ -234,6 +235,8 @@ sub ABFALL_getsummery($){
 	my $t  = time;
 	my $cleanReadingRegex = AttrVal($name,"abfall_clear_reading_regex","");
 	my $calendarNamePraefix = AttrVal($name,"calendarname_praefix","1");
+	my $filter = AttrVal($name,"filter","");
+	my @filterArray=split(/,/,$filter);
 	
 	my %replacement = ("ä" => "ae", "Ä" => "Ae", "ü" => "ue", "Ü" => "Ue", "ö" => "oe", "Ö" => "Oe", "ß" => "ss" );
 	my $replacementKeys= join ("|", keys(%replacement));
@@ -257,6 +260,18 @@ sub ABFALL_getsummery($){
 			my $dayDiff = floor(($eventDate - $t) / 60 / 60 / 24 + 1);
 			# skip Termine, welche in der Vergangenheit liegen
 			next if $dayDiff < 0;
+			
+			
+			
+			# skip termin of filter conditions - Start
+			my $keepTermin = false;
+			foreach my $eachFilter (@filterArray) {
+				if (index($eachTermin, $eachFilter) != -1) {
+					$keepTermin = true;
+				}
+				last if ($keepTermin);
+			}
+			next if ($keepTermin == false && $filter ne "");
 			
 			my $termintext =  $eachTermin;
 			$termintext =~ s/($SplitDt[0])//g;
