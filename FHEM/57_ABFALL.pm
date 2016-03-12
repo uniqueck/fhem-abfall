@@ -236,10 +236,11 @@ sub ABFALL_getsummery($){
 	my $cleanReadingRegex = AttrVal($name,"abfall_clear_reading_regex","");
 	my $calendarNamePraefix = AttrVal($name,"calendarname_praefix","1");
 	my $filter = AttrVal($name,"filter","");
-	my @filterArray=split(/,/,$filter);
+	my @filterArray=split( ',' ,$filter);
 	
 	my %replacement = ("ä" => "ae", "Ä" => "Ae", "ü" => "ue", "Ü" => "Ue", "ö" => "oe", "Ö" => "Oe", "ß" => "ss" );
 	my $replacementKeys= join ("|", keys(%replacement));
+	
 	
 	foreach my $calendername (@calendernamen){
 		my $all = CallFn($calendername, "GetFn", $defs{$calendername},(" ","text", "next"));
@@ -258,20 +259,28 @@ sub ABFALL_getsummery($){
 			my @SplitDate = split(/\./,$SplitDt[0]);
 			my $eventDate = timelocal(0,0,0,$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);
 			my $dayDiff = floor(($eventDate - $t) / 60 / 60 / 24 + 1);
-			# skip Termine, welche in der Vergangenheit liegen
-			next if $dayDiff < 0;
+			# skip events in the past
+			next if ($dayDiff < 0);
 			
 			
 			
 			# skip termin of filter conditions - Start
-			my $keepTermin = 'false';
-			foreach my $eachFilter (@filterArray) {
+			if ($filter ne "") {
+				my $keepTermin = 'false';
+				foreach my $eachFilter (@filterArray) {
 				if (index($eachTermin, $eachFilter) != -1) {
 					$keepTermin = 'true';
+					last;
 				}
-				last if ($keepTermin);
+				}
+				Log3 $name, 5, "ABFALL_getSummay($name) - filter($eachTermin) - $keepTermin";
+				if ($keepTermin eq 'false') {
+					Log3 $name, 5, "ABFALL_getSummay($name) - filter($eachTermin) - next event";
+					next;
+				}
 			}
-			next if ($keepTermin eq 'false' && $filter ne "");
+			
+			
 			
 			my $termintext =  $eachTermin;
 			$termintext =~ s/($SplitDt[0])//g;
