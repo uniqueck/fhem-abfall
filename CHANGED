@@ -1,3 +1,3 @@
 FHEM ABFALL and more last change:
 2016-06-20
- - add readings for waste pickup and used waste pickup
+ - fix readingsval
