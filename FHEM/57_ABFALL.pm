@@ -1,4 +1,4 @@
-# $Id: 57_ABFALL.pm 11019 2016-06-20 00:09:00Z uniqueck $
+# $Id: 57_ABFALL.pm 11019 2016-06-20 00:45:00Z uniqueck $
 ###########################
 #	ABFALL
 #	
@@ -60,7 +60,7 @@ sub ABFALL_Undef($$){
 sub ABFALL_Set($@){
 	my ( $hash, @a ) = @_;
 	return "\"set ABFALL\" needs at least an argument" if ( @a < 2 );
-	return "\"set ABFALL\" Unknown argument $a[1], choose one of update" if($a[1] eq '?'); 
+	return "\"set ABFALL\" Unknown argument $a[1], choose one of update,count " if($a[1] eq '?'); 
 	my $name = shift @a;
 	my $opt = shift @a;
 	my $arg = join("", @a);
@@ -73,6 +73,9 @@ sub ABFALL_GetUpdate($){
 	Log3 $name, 3, "ABFALL_UPDATE";	
 	#cleanup readings
 	
+
+	my $lastNow = ReadingsVal($hash, "now", "");
+
 	fhem("deletereading $name next", 1);
 	fhem("deletereading $name now", 1);
 	fhem("deletereading $name .*_tage", 1);
@@ -158,7 +161,18 @@ sub ABFALL_GetUpdate($){
 			} else {
 				$next_readingTermin .= $delimiter_reading . $readingTermin;
 			}			
-		}	
+		}
+		
+		my $readingTermin_pickup_count = ReadingsVal($hash, $readingTermin . "_abholungen", -1);
+		my $readingTermin_pickup_used = ReadingsVal($hash, $readingTermin . "_abholungen_genutzt", -1);
+		
+		if ($readingTermin_pickup_count == -1) {
+			readingsBulkUpdate($hash, $readingTermin ."_abholungen", 0);			
+		}
+		if ($readingTermin_pickup_used == -1) {
+			readingsBulkUpdate($hash, $readingTermin ."_abholungen_genutzt", 0);			
+		}
+		
 		readingsBulkUpdate($hash, $readingTermin ."_tage", $termin->{tage});
 		readingsBulkUpdate($hash, $readingTermin ."_text", $termin->{summary});
 		readingsBulkUpdate($hash, $readingTermin ."_datum", $termin->{bdate});
@@ -170,6 +184,10 @@ sub ABFALL_GetUpdate($){
 		readingsBulkUpdate($hash, "now_text", $nowAbfall_text);
 		readingsBulkUpdate($hash, "now_datum", $nowAbfall_datum);
 		readingsBulkUpdate($hash, "now_wochentag", $nowAbfall_weekday);
+
+		if ($lastNow ne $now_readingTermin) {
+			readingsBulkUpdate($hash, $readingTermin . "_abholungen", $readingTermin_pickup_count + 1);			
+		}
 	}	
 	
 	if ($nextAbfall_tage > -1) {
