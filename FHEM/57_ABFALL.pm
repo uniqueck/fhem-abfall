@@ -66,7 +66,7 @@ sub ABFALL_Set($@){
 	my $arg = join("", @a);
 	if($opt eq "update"){ABFALL_GetUpdate($hash);}
 	if($opt eq "count") {
-		my $waste_pickup_used = ReadingsVal($hash, $waste_pickup . "_abhulungen_genutzt", "-1");
+		my $waste_pickup_used = ReadingsVal($hash, $arg . "_abhulungen_genutzt", "-1");
 		if ($waste_pickup_used eq "-1") {
 			return "\"set ABFALL\" count Unknown waste type $arg";		
 		} else {
