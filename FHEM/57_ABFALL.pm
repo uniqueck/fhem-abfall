@@ -56,6 +56,7 @@ sub ABFALL_Undef($$){
 	RemoveInternalTimer($hash);    
 	return undef;                  
 }
+
 sub ABFALL_Set($@){
 	my ( $hash, @a ) = @_;
 	return "\"set ABFALL\" needs at least an argument" if ( @a < 2 );
@@ -65,12 +66,24 @@ sub ABFALL_Set($@){
 	my $arg = join("", @a);
 	if($opt eq "update"){ABFALL_GetUpdate($hash);}
 }
+
 sub ABFALL_GetUpdate($){	
 	my ($hash) = @_;
 	my $name = $hash->{NAME};
 	Log3 $name, 3, "ABFALL_UPDATE";	
 	#cleanup readings
-	delete ($hash->{READINGS});
+	
+	fhem("deletereading $name next", 1);
+	fhem("deletereading $name now", 1);
+	fhem("deletereading $name .*_tage", 1);
+	fhem("deletereading $name .*_wochentag", 1);
+	fhem("deletereading $name .*_text", 1);
+	fhem("deletereading $name .*_datum", 1);
+	fhem("deletereading $name state", 1);
+
+	Log3 $name, 5, "ABFALL_GetUpdate ($name) - readings deleted";		
+	
+
 	readingsBeginUpdate($hash); #start update
 	my @termine =  ABFALL_getsummery($hash);
 	
