@@ -60,12 +60,27 @@ sub ABFALL_Undef($$){
 sub ABFALL_Set($@){
 	my ( $hash, @a ) = @_;
 	return "\"set ABFALL\" needs at least an argument" if ( @a < 2 );
-	return "\"set ABFALL\" Unknown argument $a[1], choose one of update,count " if($a[1] eq '?'); 
+	return "\"set ABFALL\" Unknown argument $a[1], choose one of update:noArgs count " if($a[1] eq '?'); 
 	my $name = shift @a;
 	my $opt = shift @a;
 	my $arg = join("", @a);
 	if($opt eq "update"){ABFALL_GetUpdate($hash);}
+	if($opt eq "count") {
+		my $waste_pickup_used = ReadingsVal($hash, $waste_pickup . "_abhulungen_genutzt", "-1");
+		if ($waste_pickup_used eq "-1") {
+			return "\"set ABFALL\" count Unknown waste type $arg";		
+		} else {
+			ABFALL_count($hash, $arg, $waste_pickup_used);
+		}
+	}
 }
+
+sub ABFALL_Count($$){
+	my ($hash, $waste_pickup, $used) = @_;
+	$used = $used + 1;
+	readingsSingleUpdate($hash, $waste_pickup ."_abholungen_genutzt", $used);	
+}
+
 
 sub ABFALL_GetUpdate($){	
 	my ($hash) = @_;
