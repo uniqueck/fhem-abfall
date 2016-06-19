@@ -186,8 +186,11 @@ sub ABFALL_GetUpdate($){
 		readingsBulkUpdate($hash, "now_wochentag", $nowAbfall_weekday);
 
 		if ($lastNow ne $now_readingTermin) {
-			$readingTermin_pickup_count = $readingTermin_pickup_count + 1;
-			readingsBulkUpdate($hash, $readingTermin . "_abholungen", $readingTermin_pickup_count);			
+			# FIXME if more than one pickup today, split readingTermin with delimiter_text_reading
+			Log3 $name, 4, "ABFALL_Update ($name) - inc count for $now_readingTermin";		
+			my $now_readingTermin_count =  ReadingsVal($hash, $now_readingTermin . "_abholungen", "0");
+			$now_readingTermin_count = $now_readingTermin_count + 1;			
+			readingsBulkUpdate($hash, $now_readingTermin . "_abholungen", $now_readingTermin_count);			
 		}
 	}	
 	
