@@ -44,7 +44,7 @@ sub ABFALL_Define($$){
 		return "invalid Calendername \"$calender\", define it first" if((devspec2array("NAME=$calender")) != 1 );	
 	}
 	$hash->{KALENDER} 	= $a[2];
-    
+    	$hash->{NOTIFYDEV}	= $a[2];
 	$hash->{NAME} 	= $name;
 	$hash->{STATE}	= "Initialized";
 	InternalTimer(gettimeofday()+2, "ABFALL_GetUpdate", $hash, 0);
@@ -163,14 +163,14 @@ sub ABFALL_GetUpdate($){
 			}			
 		}
 		
-		my $readingTermin_pickup_count = ReadingsVal($hash, $readingTermin . "_abholungen", -1);
-		my $readingTermin_pickup_used = ReadingsVal($hash, $readingTermin . "_abholungen_genutzt", -1);
+		my $readingTermin_pickup_count = ReadingsVal($hash, $readingTermin . "_abholungen", "-1");
+		my $readingTermin_pickup_used = ReadingsVal($hash, $readingTermin . "_abholungen_genutzt", "-1");
 		
 		if ($readingTermin_pickup_count == -1) {
-			readingsBulkUpdate($hash, $readingTermin ."_abholungen", 0);			
+			readingsBulkUpdate($hash, $readingTermin ."_abholungen", "0");			
 		}
 		if ($readingTermin_pickup_used == -1) {
-			readingsBulkUpdate($hash, $readingTermin ."_abholungen_genutzt", 0);			
+			readingsBulkUpdate($hash, $readingTermin ."_abholungen_genutzt", "0");			
 		}
 		
 		readingsBulkUpdate($hash, $readingTermin ."_tage", $termin->{tage});
@@ -186,7 +186,8 @@ sub ABFALL_GetUpdate($){
 		readingsBulkUpdate($hash, "now_wochentag", $nowAbfall_weekday);
 
 		if ($lastNow ne $now_readingTermin) {
-			readingsBulkUpdate($hash, $readingTermin . "_abholungen", $readingTermin_pickup_count + 1);			
+			$readingTermin_pickup_count = $readingTermin_pickup_count + 1;
+			readingsBulkUpdate($hash, $readingTermin . "_abholungen", $readingTermin_pickup_count);			
 		}
 	}	
 	
