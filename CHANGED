@@ -1,4 +1,3 @@
 FHEM ABFALL and more last change:
 2016-06-20
- - changed delete readings
- - changed header
+ - add readings for waste pickup and used waste pickup
