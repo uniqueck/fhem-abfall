@@ -60,13 +60,15 @@ sub ABFALL_Undef($$){
 sub ABFALL_Set($@){
 	my ( $hash, @a ) = @_;
 	return "\"set ABFALL\" needs at least an argument" if ( @a < 2 );
-	return "\"set ABFALL\" Unknown argument $a[1], choose one of update:noArg count " if($a[1] eq '?'); 
+	return "\"set ABFALL\" Unknown argument $a[1], choose one of update:noArg	 count " if($a[1] eq '?'); 
 	my $name = shift @a;
 	my $opt = shift @a;
 	my $arg = join("", @a);
 	if($opt eq "update"){ABFALL_GetUpdate($hash);}
 	if($opt eq "count") {
+		 
 		my $waste_pickup_used = ReadingsVal($hash, $arg . "_abholungen_genutzt", "-1");
+		Log3, $name, 5, "ABFALL_Set count $arg: looking for reading \"$arg"."_abholungen_genutzt\" = $waste_pickup_used";		
 		if ($waste_pickup_used eq "-1") {
 			return "\"set ABFALL count $arg\" : unknown waste type $arg";		
 		} else {
