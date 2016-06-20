@@ -1,3 +1,3 @@
 FHEM ABFALL and more last change:
 2016-06-20
- - correct spelling error
+ - set arg type for update from noArgs to noArg
