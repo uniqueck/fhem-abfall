@@ -78,7 +78,7 @@ sub ABFALL_Set($@){
 sub ABFALL_Count($$){
 	my ($hash, $waste_pickup, $used) = @_;
 	$used = $used + 1;
-	readingsSingleUpdate($hash, $waste_pickup ."_abholungen_genutzt", $used);	
+	readingsSingleUpdate($hash, $waste_pickup ."_abholungen_genutzt", $used, "0");	
 }
 
 
