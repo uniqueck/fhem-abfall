@@ -85,7 +85,7 @@ sub ABFALL_GetUpdate($){
 	#cleanup readings
 	
 
-	my $lastNow = ReadingsVal($hash, "now", "");
+	my $lastNow = ReadingsVal($name, "now", "");
 
 	Log3 $name, 5, "ABFALL_GetUpdate ($name) - reading lastNow $lastNow";
 
@@ -176,8 +176,8 @@ sub ABFALL_GetUpdate($){
 			}			
 		}
 		
-		my $readingTermin_pickup_count = ReadingsVal($hash, $readingTermin . "_abholungen", "-1");
-		my $readingTermin_pickup_used = ReadingsVal($hash, $readingTermin . "_abholungen_genutzt", "-1");
+		my $readingTermin_pickup_count = ReadingsVal($name, $readingTermin . "_abholungen", "-1");
+		my $readingTermin_pickup_used = ReadingsVal($name, $readingTermin . "_abholungen_genutzt", "-1");
 		
 		if ($readingTermin_pickup_count == -1) {
 			readingsBulkUpdate($hash, $readingTermin ."_abholungen", "0");			
