@@ -1,3 +1,3 @@
 FHEM ABFALL and more last change:
 2016-06-21
- - switch in readingsval to name
+ - switch to $name from $hash for method readingsVal
