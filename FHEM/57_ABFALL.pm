@@ -71,15 +71,10 @@ sub ABFALL_Set($@){
 		if ($waste_pickup_used eq "-1") {
 			return "\"set ABFALL count $arg\" : unknown waste type $arg";		
 		} else {
-			ABFALL_count($hash, $arg, $waste_pickup_used);
+			$waste_pickup_used = $waste_pickup_used + 1;
+			readingsSingleUpdate($hash, $arg ."_abholungen_genutzt", $waste_pickup_used, "0");
 		}
 	}
-}
-
-sub ABFALL_Count($$){
-	my ($hash, $waste_pickup, $used) = @_;
-	$used = $used + 1;
-	readingsSingleUpdate($hash, $waste_pickup ."_abholungen_genutzt", $used, "0");	
 }
 
 
