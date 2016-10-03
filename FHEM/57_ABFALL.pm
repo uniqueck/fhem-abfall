@@ -268,7 +268,11 @@ sub ABFALL_getsummery($){
 			if ($filter ne "") {
 				my $keepTermin = 'false';
 				foreach my $eachFilter (@filterArray) {
-				if (index($eachTermin, $eachFilter) != -1) {
+				# fix from fhem forum user justme1968 to support regex for filter
+				if ($eachFilter =~ m'^/(.*)/$' && $eachTermin =~ m/$1/ ) {
+					$keepTermin = 'true';
+					last;			
+				} elsif (index($eachTermin, $eachFilter) != -1) {
 					$keepTermin = 'true';
 					last;
 				}
@@ -360,7 +364,9 @@ sub ABFALL_getsummery($){
 		<li><b>delimiter_text_reading </b></li>
 			delimiter for join events on same day for readings now_text and next_text<br>
 		<li><b>delimiter_reading </b></li>
-			delimiter for join reading name on readings now and next<br>	
+			delimiter for join reading name on readings now and next<br>
+		<li><b>filter </b></li>
+			filter to keep events, possible values regex or string with event name parts<br>	
 	</ul>
 =end html
 
@@ -394,6 +400,8 @@ sub ABFALL_getsummery($){
 		<li><b>delimiter_reading </b></li>
 			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen<br>
 			gilt nur für die readings next und now
+		<li><b>filter </b></li>
+			Zeichenkette zum Filter der Events aus den Kalendern, es sind auch regex möglich<br>
 	</ul>
 =end html_DE
 =cut
