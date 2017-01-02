@@ -60,7 +60,7 @@ sub ABFALL_Undef($$){
 sub ABFALL_Set($@){
 	my ( $hash, @a ) = @_;
 	return "\"set ABFALL\" needs at least an argument" if ( @a < 2 );
-	return "\"set ABFALL\" Unknown argument $a[1], choose one of update:NoArg count " if($a[1] eq '?'); 
+	return "\"set ABFALL\" Unknown argument $a[1], choose one of update:noArg count " if($a[1] eq '?'); 
 	my $name = shift @a;
 	my $opt = shift @a;
 	my $arg = join("", @a);
