@@ -53,9 +53,17 @@ sub ABFALL_Define($$){
 	# prüfen, ob eine neue Definition angelegt wird 
 	if($init_done && !defined($hash->{OLDDEF}))
 	{
-		# setzen von stateFormat
+		# set default stateFormat
 		$attr{$name}{"stateFormat"} = "next_text in next_tage Tag(en)";
- 	}
+		# set calendarname_praefix
+		$attr{$name}{"calendarname_praefix"} = "0" if(@calendars == 1);
+		# set default weekday_mapping
+		$attr{$name}{"weekday_mapping"} = "Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag";
+		# set default delimiter_text_reading
+		$attr{$name}{"delimiter_text_reading"} = " und ";
+		# set default delimiter_reading
+		$attr{$name}{"delimiter_reading"} = "|"; 	 	
+	}
 	InternalTimer(gettimeofday()+2, "ABFALL_GetUpdate", $hash, 0);
 	return undef;
 }
