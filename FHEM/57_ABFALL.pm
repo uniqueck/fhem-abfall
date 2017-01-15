@@ -32,6 +32,7 @@ sub ABFALL_Initialize($)
 		."enable_counting:0,1 "
 		.$readingFnAttributes;
 }
+
 sub ABFALL_Define($$){
 	my ( $hash, $def ) = @_;
 	my @a = split( "[ \t][ \t]*", $def );
@@ -48,9 +49,17 @@ sub ABFALL_Define($$){
     	$hash->{NOTIFYDEV}	= $a[2];
 	$hash->{NAME} 	= $name;
 	$hash->{STATE}	= "Initialized";
+
+	# prüfen, ob eine neue Definition angelegt wird 
+	if($init_done && !defined($hash->{OLDDEF}))
+	{
+		# setzen von stateFormat
+		$attr{$name}{"stateFormat"} = "next_text in next_tage Tag(en)";
+ 	}
 	InternalTimer(gettimeofday()+2, "ABFALL_GetUpdate", $hash, 0);
 	return undef;
 }
+
 sub ABFALL_Undef($$){
 	my ( $hash, $arg ) = @_;
 	RemoveInternalTimer($hash);    
