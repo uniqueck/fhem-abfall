@@ -29,6 +29,7 @@ sub ABFALL_Initialize($)
 		."delimiter_text_reading "
 		."delimiter_reading "
 		."filter "
+		."enable_counting:0,1 "
 		.$readingFnAttributes;
 }
 sub ABFALL_Define($$){
@@ -52,31 +53,47 @@ sub ABFALL_Define($$){
 }
 sub ABFALL_Undef($$){
 	my ( $hash, $arg ) = @_;
-	#DevIo_CloseDev($hash);			         
 	RemoveInternalTimer($hash);    
 	return undef;                  
 }
 
 sub ABFALL_Set($@){
-	my ( $hash, @a ) = @_;
-	return "\"set ABFALL\" needs at least an argument" if ( @a < 2 );
-	return "\"set ABFALL\" Unknown argument $a[1], choose one of update:noArg count " if($a[1] eq '?'); 
-	my $name = shift @a;
-	my $opt = shift @a;
-	my $arg = join("", @a);
-	if($opt eq "update"){ABFALL_GetUpdate($hash);}
-	if($opt eq "count") {		 
-		my $waste_pickup_used = ReadingsVal($name, $arg . "_abholungen_genutzt", "-1");
-		Log3 $name, 5, "ABFALL_Set count $arg: looking for reading \"$arg"."_abholungen_genutzt\" = $waste_pickup_used";		
-		if ($waste_pickup_used eq "-1") {
-			return "\"set ABFALL count $arg\" : unknown waste type $arg";		
-		} else {
-			$waste_pickup_used = $waste_pickup_used + 1;
-			readingsSingleUpdate($hash, $arg ."_abholungen_genutzt", $waste_pickup_used, "0");
-		}
+
+	my ($hash, $name, $cmd, @val) = @_;
+	my $arg = join("", @val);
+	my $list = "";
+	my $result = undef;
+	$list .= "update:noArg" if($hash->{STATE} ne 'disabled');
+	$list .= " clear:noArg count" if(AttrVal($name, "enable_counting","0"));
+
+	if ($cmd eq "update") {
+		ABFALL_GetUpdate($hash);
+	} elsif ($cmd eq "count") {
+		$result = ABFALL_Count($hash, $arg);		
+	} elsif ($cmd eq "clear") {
+		fhem("deletereading $name .*_abholungen", 1);
+		fhem("deletereading $name .*_abholungen_genutzt", 1);
+	} else {
+		$result = "ABFALL_Set ($name) - Unknown argument $cmd or wrong parameter(s), choose one of $list";	
 	}
+	return $result;
 }
 
+
+sub ABFALL_Count($$){
+	my ($hash, $abfallArt) = @_;
+	my $name = $hash->{NAME};
+	my $result = undef;
+	my $waste_pickup_used = ReadingsVal($name, $abfallArt . "_abholungen_genutzt", "-1");
+	Log3 $name, 5, "ABFALL_Count $abfallArt: looking for reading \"$abfallArt"."_abholungen_genutzt\" = $waste_pickup_used";		
+	if ($waste_pickup_used eq "-1") {
+		$result = "\"set $name count $abfallArt\" : unknown waste type $abfallArt";		
+	} else {
+		$waste_pickup_used = $waste_pickup_used + 1;
+		readingsSingleUpdate($hash, $abfallArt ."_abholungen_genutzt", $waste_pickup_used, "0");
+	}
+	return $result;
+}
 
 sub ABFALL_GetUpdate($){	
 	my ($hash) = @_;
