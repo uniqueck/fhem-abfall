@@ -1,4 +1,4 @@
-# $Id: 57_ABFALL.pm 11019 2016-06-21 23:10:00Z uniqueck $
+# $Id: 57_ABFALL.pm 11019 2017-01-15 23:10:00Z uniqueck $
 ###########################
 #	ABFALL
 #	
@@ -71,12 +71,18 @@ sub ABFALL_Set($@){
 	} elsif ($cmd eq "count") {
 		$result = ABFALL_Count($hash, $arg);		
 	} elsif ($cmd eq "clear") {
-		fhem("deletereading $name .*_abholungen", 1);
-		fhem("deletereading $name .*_abholungen_genutzt", 1);
+		ABFALL_Clear($hash);		
 	} else {
 		$result = "ABFALL_Set ($name) - Unknown argument $cmd or wrong parameter(s), choose one of $list";	
 	}
 	return $result;
+}
+
+sub ABFALL_Clear($) {
+	my ($hash) = @_;
+	my $name = $hash->{NAME};
+	fhem("deletereading $name .*_abholungen", 1);
+	fhem("deletereading $name .*_abholungen_genutzt", 1);
 }
 
 
