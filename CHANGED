@@ -1,3 +1,16 @@
 FHEM ABFALL and more last change:
-2017-01-03
- - remove sign _ from now reading
+2017-01-16
+ - set default attribute values
+
+delimiter_text_reading to " und "
+delimiter_reading to "|"
+weekday_mapping to "Sontag Montag Dienstag Mittwoch Donnerstag Freitag Samstag"
+
+introduced default stateFormat
+
+moved clear part to new method
+
+refactored methode ABFALL_Set
+-> extract count to new method
+-> introduced new attribute enable_counting
+-> introduced new set method clear and count only for enable_counting eq 1
