@@ -33,7 +33,13 @@ The Perl module can be loaded directly into your FHEM installation. For this ple
 	only for the readings next_text and now_text 
 - delimiter_reading
 	
-	same as delimiter_text_reading, but only for the reading next and now 
+	same as delimiter_text_reading, but only for the reading next and now
+- enable_counting_pickups
+	
+	activate support for counting pickups
+- enable_old_readingnames
+
+	add old deprecated german readings, in the future, all readings are english  
 
 ## How to Update
 The Perl module can be update directly with standard fhem update process. For this please copy the below command into the FHEM command line.
