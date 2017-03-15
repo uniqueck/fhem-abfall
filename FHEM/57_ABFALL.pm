@@ -168,6 +168,8 @@ sub ABFALL_GetUpdate($){
 	
 	my $nowAbfall_tage = -1;
 	my $nowAbfall_text = "";
+	my $nowAbfall_location = "";
+	my $nowAbfall_description = "";
 	my $nowAbfall_datum;
 	my $nowAbfall_weekday;
 	my $now_readingTermin = "";
@@ -175,6 +177,8 @@ sub ABFALL_GetUpdate($){
 	
 	my $nextAbfall_tage = -1;
 	my $nextAbfall_text = "";
+	my $nextAbfall_location = "";
+	my $nextAbfall_description = "";
 	my $nextAbfall_datum;
 	my $nextAbfall_weekday;
 	my $next_readingTermin = "";
@@ -192,6 +196,20 @@ sub ABFALL_GetUpdate($){
 				$nowAbfall_text = $event->{summary};	
 			} else {
 				$nowAbfall_text .= $delimiter_text_reading . $event->{summary};
+			}
+			# check if location reading is the same
+			if($nowAbfall_location eq "") {
+				$nowAbfall_location = $event->{location};	
+			} elsif ($nowAbfall_location ne $event->{location}) {
+				# TODO change check to regex expression contains
+				$nowAbfall_location .= $delimiter_text_reading . $event->{location};
+			}
+			# check if description reading is the same
+			if($nowAbfall_description eq "") {
+				$nowAbfall_description = $event->{description};	
+			} elsif ($nowAbfall_description ne $event->{description}) {
+				# TODO change check to regex expression contains
+				$nowAbfall_description .= $delimiter_text_reading . $event->{description};
 			}
 			$nowAbfall_tage = $event->{days};
 			$nowAbfall_datum = $event->{start};
