@@ -221,6 +221,20 @@ sub ABFALL_GetUpdate($){
 			} else {
 				$nextAbfall_text .= $delimiter_text_reading . $event->{summary};
 			}
+			# check if location reading is the same
+			if ($nextAbfall_location eq "") {
+				$nextAbfall_location = $event->{location};
+			} else {
+				# TODO check if nextAbfall_location contains $event->{location}
+				$nextAbfall_location .= $delimiter_text_reading . $event->{location};
+			}
+			# check if description reading is the same
+			if ($nextAbfall_description eq "") {
+				$nextAbfall_description = $event->{description};
+			} else {
+				# TODO check if nextAbfall_location contains $event->{location}
+				$nextAbfall_description .= $delimiter_text_reading . $event->{description};
+			}
 			$nextAbfall_tage = $event->{days};
 			$nextAbfall_datum = $event->{start};
 			$nextAbfall_weekday = $event->{weekday};
@@ -259,7 +273,8 @@ sub ABFALL_GetUpdate($){
 		readingsBulkUpdate($hash, "now_date", $nowAbfall_datum);
 		readingsBulkUpdate($hash, "now_wochentag", $nowAbfall_weekday) if ($enable_old_readingnames);
 		readingsBulkUpdate($hash, "now_weekday", $nowAbfall_weekday);
-				
+		readingsBulkUpdate($hash, "now_location", $nowAbfall_location);
+		readingsBulkUpdate($hash, "now_description", $nowAbfall_description);		
 
 		if ($lastNow ne $now_readingTermin && $enable_counting_pickups) {
 			# FIXME if more than one pickup today, split readingTermin with delimiter_text_reading
@@ -282,6 +297,8 @@ sub ABFALL_GetUpdate($){
 		readingsBulkUpdate($hash, "next_date", $nextAbfall_datum);
 		readingsBulkUpdate($hash, "next_wochentag", $nextAbfall_weekday) if ($enable_old_readingnames);
 		readingsBulkUpdate($hash, "next_weekday", $nextAbfall_weekday);
+		readingsBulkUpdate($hash, "next_location", $nextAbfall_location);
+		readingsBulkUpdate($hash, "next_description", $nextAbfall_description);
 
 		readingsBulkUpdate($hash, "state", $nextAbfall_tage);
 	} else {
