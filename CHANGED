@@ -1,5 +1,3 @@
 FHEM ABFALL and more last change:
-2017-02-27
- - add new readings location and description
-rename readings to english one
-add new attribute to enable old readingnames
+2017-07-26
+ - prepare new version
