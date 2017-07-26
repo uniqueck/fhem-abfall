@@ -10,7 +10,7 @@ The Perl module can be loaded directly into your FHEM installation. For this ple
 	
 	define myABFALL ABFALL <name of a calendar device>
 	
-### Attributes #
+### Attributes
 	
 - abfall\_clear\_reading_regex
 
@@ -26,14 +26,23 @@ The Perl module can be loaded directly into your FHEM installation. For this ple
 	default value is Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag
 - calendarname_praefix
 
-	only useful for multiple calendars, add calendar name as preafix on readingname
+	only useful for multiple calendars, add calendar name as preafix on readingname, if you define a new abfall device with only one calendar device,
+	it is set to 0
 - delimiter\_text_reading
 	
-	if events exists on the same day, this is the delimiter to join these events
-	only for the readings next_text and now_text 
+	if more than one event exist on the same day, this is the delimiter to join these events
+	only for the readings next_text, next_location, next_description, now_text, now_location and now_description 
 - delimiter_reading
 	
-	same as delimiter_text_reading, but only for the reading next and now 
+	same as delimiter_text_reading, but only for the reading next and now
+- filter
+	include only events, which match these filter condition, the filter condition can be a normale text or regex expression
+- enable_counting_pickups
+	
+	activate support for counting pickups
+- enable_old_readingnames
+
+	add old deprecated german readings, in the future, all readings are english
 
 ## How to Update
 The Perl module can be update directly with standard fhem update process. For this please copy the below command into the FHEM command line.
