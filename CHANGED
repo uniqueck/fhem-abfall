@@ -1,5 +1,3 @@
 FHEM ABFALL and more last change:
-2016-05-25
- - add regex support for filter
-
-add documentation for filter attribute
+2017-07-26
+ - prepare new version
