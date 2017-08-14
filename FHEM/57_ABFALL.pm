@@ -9,7 +9,6 @@ package main;
 use strict;
 use warnings;
 use POSIX;
-use Date::Parse;
 use Time::Local;
 use Time::Piece;
 
@@ -55,7 +54,7 @@ sub ABFALL_Define($$){
 	if($init_done && !defined($hash->{OLDDEF}))
 	{
 		# set default stateFormat
-		$attr{$name}{"stateFormat"} = "next_text in next_tage Tag(en)";
+		$attr{$name}{"stateFormat"} = "next_text in next_days Tag(en)";
 		# set calendarname_praefix
 		$attr{$name}{"calendarname_praefix"} = "0" if(@calendars == 1);
 		# set default weekday_mapping
@@ -383,78 +382,99 @@ sub getEvents($){
 
 		my $all = CallFn($calendername, "GetFn", $defs{$calendername},(" ","uid", "next"));
 		my @termine=split(/\n/,$all);
+		my $now_time = localtime();
 
 		foreach my $uid (@termine){
-			my $eventStart = CallFn($calendername, "GetFn", $defs{$calendername},(" ","start", $uid));
+			# get all information for one uid
+			my @starts = split(/\n/,CallFn($calendername, "GetFn", $defs{$calendername},(" ","start", $uid)));
 
-			# skip events in the past
-			my @SplitDt = split(/ /,$eventStart);
-			my @SplitDate = split(/\./,$SplitDt[0]);
-			my $eventDate = timelocal(0,0,0,$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);
-			my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);
-			next if ($dayDiff < 0);
+			my @summarys = split(/\n/,CallFn($calendername, "GetFn", $defs{$calendername},(" ","summary", $uid)));
 
-			# skip events of filter conditions
-			my $eventText = CallFn($calendername, "GetFn", $defs{$calendername},(" ","summary", $uid));
-			next if (skipEvent($hash, $eventText));
+			my @locations = split(/\n/, CallFn($calendername, "GetFn", $defs{$calendername},(" ","location", $uid)));
 
-			# cleanup summary of event
-			if ($cleanReadingRegex){
-				$eventText =~ s/$cleanReadingRegex//g;
-			}
-			my $cleanReadingName = $eventText;
-			# should add praefix from calendar
-			if ($calendarNamePraefix) {
-				$cleanReadingName = $calendername . "_" . $cleanReadingName;
-			}
-			# prepare reading name from summary of event
-			$cleanReadingName =~ s/($replacementKeys)/$replacement{$1}/eg;
-			$cleanReadingName =~ tr/a-zA-Z0-9\-_//dc;
+			my @descriptions = split(/\n/, CallFn($calendername, "GetFn", $defs{$calendername},(" ","description", $uid)));
 
-			my $tempDate    = Time::Piece->strptime($SplitDt[0], '%d.%m.%y');
-			my $wdayname = $tempDate->day(@days);
+			# next if (not (scalar(@starts) eq scalar(@summarys) eq scalar(@locations) eq scalar(@descriptions)));
 
-			my $eventLocation = CallFn($calendername, "GetFn", $defs{$calendername},(" ","location", $uid));
-			my $eventDescription = CallFn($calendername, "GetFn", $defs{$calendername},(" ","description", $uid));
+			for(my $i = 0; $i <= scalar(@starts); $i++) {
 
-			Log3 $name, 5,  "getEvents($name) - calendar($calendername) - uid($uid) -start($eventStart) - text($eventText) - location($eventLocation) - description($eventDescription)";
+				Log3 $name, 5, "getEvents($name) -  calendar($calendername) - uid($uid) - start($starts[$i])";
+				next if ($starts[$i] eq '');
 
-			my $foundItem = ();
-			foreach my $item (@terminliste ){
-				my $tempText= $item->{summary};
-				my $tempCalName= $item->{calendar};
-				if ($tempText eq $eventText && $tempCalName eq $calendername) {
-					$foundItem = $item;
+				# skip events in the past
+				my @SplitDt = split(/ /,$starts[$i]);
+				my @SplitDate = split(/\./,$SplitDt[0]);
+				my @SplitTime = split(/\:/,$SplitDt[1]);
+				my $eventDate = timelocal($SplitTime[2],$SplitTime[1],$SplitTime[0],$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);
+				my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);
+				next if ($eventDate < $now_time);
+
+				my $eventText = $summarys[$i];
+				# skip events of filter conditions
+				next if (skipEvent($hash, $eventText));
+
+				# cleanup summary of event
+				if ($cleanReadingRegex){
+					$eventText =~ s/$cleanReadingRegex//g;
 				}
-				last if ($foundItem);
-			}
-
-			if ($foundItem) {
-				Log3 $name, 5, "getEvents($name) - calendar($calendername) - " . $foundItem->{summary} . " - allready exists!";
-				if ($eventDate < $foundItem->{date} && $eventDate > time) {
-					Log3 $name, 5, "getEvents($name) - calendar($calendername) - change - " . $foundItem->{start} ." to " . $eventStart;
-					$foundItem->{uid} = $uid;
-					$foundItem->{start} = $eventStart;
-					$foundItem->{weekday} = $wdayname;
-					$foundItem->{location} = $eventLocation;
-					$foundItem->{description} = $eventDescription;
-					$foundItem->{date} = $eventDate;
-					$foundItem->{days} = $dayDiff;
+				my $cleanReadingName = $eventText;
+				# should add praefix from calendar
+				if ($calendarNamePraefix) {
+					$cleanReadingName = $calendername . "_" . $cleanReadingName;
 				}
-			} else {
-				$eventText =~ s/\\,/,/g;
-				$cleanReadingName =~ s/\\,/,/g;
-				push @terminliste, {
-					uid => $uid,
-					start => $eventStart,
-					weekday => $wdayname,
-					summary => $eventText,
-					location => $eventLocation,
-					description => $eventDescription,
-					readingName => $cleanReadingName,
-					date => $eventDate,
-					days => $dayDiff,
-					calendar => $calendername};
+
+				# prepare reading name from summary of event
+				$cleanReadingName =~ s/($replacementKeys)/$replacement{$1}/eg;
+				$cleanReadingName =~ tr/a-zA-Z0-9\-_//dc;
+
+				Log3 $name, 5, "$SplitDt[0]";
+				my $weekday = (localtime($eventDate))[6];
+				my $wdayname = $days[$weekday];
+
+
+				my $eventLocation = $locations[$i];
+				my $eventDescription = $descriptions[$i];
+
+				Log3 $name, 5,  "getEvents($name) - calendar($calendername) - uid($uid) -start($starts[$i]) - text($eventText) - location($eventLocation) - description($eventDescription)";
+
+
+				my $foundItem = ();
+				foreach my $item (@terminliste ){
+					my $tempText= $item->{summary};
+					my $tempCalName= $item->{calendar};
+					if ($tempText eq $eventText && $tempCalName eq $calendername) {
+						$foundItem = $item;
+					}
+					last if ($foundItem);
+				}
+
+				if ($foundItem) {
+					Log3 $name, 5, "getEvents($name) - calendar($calendername) - " . $foundItem->{summary} . " - allready exists!";
+					if ($eventDate < $foundItem->{date} && $eventDate > time) {
+						Log3 $name, 5, "getEvents($name) - calendar($calendername) - change - " . $foundItem->{start} ." to " . $starts[$i];
+						$foundItem->{uid} = $uid;
+						$foundItem->{start} = $starts[$i];
+						$foundItem->{weekday} = $wdayname;
+						$foundItem->{location} = $eventLocation;
+						$foundItem->{description} = $eventDescription;
+						$foundItem->{date} = $eventDate;
+						$foundItem->{days} = $dayDiff;
+					}
+				} else {
+					$eventText =~ s/\\,/,/g;
+					$cleanReadingName =~ s/\\,/,/g;
+					push @terminliste, {
+						uid => $uid,
+						start => $starts[$i],
+						weekday => $wdayname,
+						summary => $eventText,
+						location => $eventLocation,
+						description => $eventDescription,
+						readingName => $cleanReadingName,
+						date => $eventDate,
+						days => $dayDiff,
+						calendar => $calendername};
+				}
 			}
 		} # end for each uid
 	} # end for each calendar
@@ -491,6 +511,7 @@ sub skipEvent($@) {
 
 1;
 =pod
+
 =begin html
 
 <a name="ABFALL"></a>
