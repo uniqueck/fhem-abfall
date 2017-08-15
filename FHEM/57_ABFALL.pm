@@ -214,7 +214,7 @@ sub ABFALL_GetUpdate($){
 				$nowAbfall_description .= $delimiter_text_reading . $event->{description};
 			}
 			$nowAbfall_tage = $event->{days};
-			$nowAbfall_datum = $event->{start};
+			$nowAbfall_datum = $event->{date};
 			$nowAbfall_weekday = $event->{weekday};
 			$now_readingTermin = $readingTermin;
 		} elsif	($nextAbfall_tage == -1 || $nextAbfall_tage > $event->{days} || $nextAbfall_tage == $event->{days} ) {
@@ -238,7 +238,7 @@ sub ABFALL_GetUpdate($){
 				$nextAbfall_description .= $delimiter_text_reading . $event->{description};
 			}
 			$nextAbfall_tage = $event->{days};
-			$nextAbfall_datum = $event->{start};
+			$nextAbfall_datum = $event->{date};
 			$nextAbfall_weekday = $event->{weekday};
 			if ($next_readingTermin eq "") {
 				$next_readingTermin = $readingTermin;
@@ -259,8 +259,8 @@ sub ABFALL_GetUpdate($){
 		readingsBulkUpdate($hash, $readingTermin ."_tage", $event->{days}) if ($enable_old_readingnames);
 		readingsBulkUpdate($hash, $readingTermin ."_days", $event->{days});
 		readingsBulkUpdate($hash, $readingTermin ."_text", $event->{summary});
-		readingsBulkUpdate($hash, $readingTermin ."_datum", $event->{start}) if ($enable_old_readingnames);
-		readingsBulkUpdate($hash, $readingTermin ."_date", $event->{start});
+		readingsBulkUpdate($hash, $readingTermin ."_datum", $event->{date}) if ($enable_old_readingnames);
+		readingsBulkUpdate($hash, $readingTermin ."_date", $event->{date});
 		readingsBulkUpdate($hash, $readingTermin ."_wochentag", $event->{weekday}) if ($enable_old_readingnames);
 		readingsBulkUpdate($hash, $readingTermin ."_weekday", $event->{weekday});
 		readingsBulkUpdate($hash, $readingTermin ."_location", $event->{location});
@@ -376,6 +376,7 @@ sub getEvents($){
 	my $replacementKeys= join ("|", keys(%replacement));
 
 	my $wdMapping = AttrVal($name,"weekday_mapping","Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag");
+	my $date_style = AttrVal($name, "date_style","date");
 	my @days = split("\ ", $wdMapping);
 	Log3 $name, 5,  "getEvents($name) - weekDayMapping ($wdMapping)" ;
 
@@ -407,6 +408,11 @@ sub getEvents($){
 				my @SplitDate = split(/\./,$SplitDt[0]);
 				my @SplitTime = split(/\:/,$SplitDt[1]);
 				my $eventDate = timelocal($SplitTime[2],$SplitTime[1],$SplitTime[0],$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);
+				my $eventDateFormatted = $SplitDt[0];
+				if ($date_style eq "dateTime") {
+					$eventDateFormatted = $SplitDt[0] . " " . $SplitDt[1];
+				}
+
 				my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);
 				next if ($eventDate < $now_time);
 
@@ -465,7 +471,7 @@ sub getEvents($){
 						$foundItem->{weekday} = $wdayname;
 						$foundItem->{location} = $eventLocation;
 						$foundItem->{description} = $eventDescription;
-						$foundItem->{date} = $eventDate;
+						$foundItem->{date} = $eventDateFormatted;
 						$foundItem->{days} = $dayDiff;
 					}
 				} else {
@@ -479,7 +485,7 @@ sub getEvents($){
 						location => $eventLocation,
 						description => $eventDescription,
 						readingName => $cleanReadingName,
-						date => $eventDate,
+						date => $eventDateFormatted,
 						days => $dayDiff,
 						calendar => $calendername};
 				}
