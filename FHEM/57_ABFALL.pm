@@ -30,6 +30,7 @@ sub ABFALL_Initialize($)
 		."filter "
 		."enable_counting_pickups:0,1 "
 		."enable_old_readingnames:0,1 "
+		."date_style:yyyyMMddHHmmss,yyyyMMdd "
 		.$readingFnAttributes;
 }
 
