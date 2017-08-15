@@ -30,7 +30,7 @@ sub ABFALL_Initialize($)
 		."filter "
 		."enable_counting_pickups:0,1 "
 		."enable_old_readingnames:0,1 "
-		."date_style:yyyyMMddHHmmss,yyyyMMdd "
+		."date_style:date,dateTime "
 		.$readingFnAttributes;
 }
 
@@ -64,6 +64,8 @@ sub ABFALL_Define($$){
 		$attr{$name}{"delimiter_text_reading"} = " und ";
 		# set default delimiter_reading
 		$attr{$name}{"delimiter_reading"} = "|";
+		# set default date_style
+		$attr{$name}{"date_style"} = "date";
 	}
 	InternalTimer(gettimeofday()+2, "ABFALL_GetUpdate", $hash, 0);
 	return undef;
@@ -376,8 +378,6 @@ sub getEvents($){
 	my $wdMapping = AttrVal($name,"weekday_mapping","Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag");
 	my @days = split("\ ", $wdMapping);
 	Log3 $name, 5,  "getEvents($name) - weekDayMapping ($wdMapping)" ;
-
-
 
 	foreach my $calendername (@calendernamen){
 
