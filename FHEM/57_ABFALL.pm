@@ -397,9 +397,9 @@ sub getEvents($){
 			# next if (not (scalar(@starts) eq scalar(@summarys) eq scalar(@locations) eq scalar(@descriptions)));
 
 			for(my $i = 0; $i <= scalar(@starts); $i++) {
-
-				Log3 $name, 5, "getEvents($name) -  calendar($calendername) - uid($uid) - start($starts[$i])";
+				next if (not defined($starts[$i]));
 				next if ($starts[$i] eq '');
+				Log3 $name, 5, "getEvents($name) -  calendar($calendername) - uid($uid) - start($starts[$i])";
 
 				# skip events in the past
 				my @SplitDt = split(/ /,$starts[$i]);
@@ -434,6 +434,13 @@ sub getEvents($){
 
 				my $eventLocation = $locations[$i];
 				my $eventDescription = $descriptions[$i];
+
+				if (not defined($eventLocation)) {
+					$eventLocation = "";
+				}
+				if (not defined($eventDescription)) {
+					$eventDescription = "";
+				}
 
 				Log3 $name, 5,  "getEvents($name) - calendar($calendername) - uid($uid) -start($starts[$i]) - text($eventText) - location($eventLocation) - description($eventDescription)";
 
