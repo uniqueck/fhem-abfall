@@ -165,7 +165,7 @@ sub ABFALL_GetUpdate($){
 	$year += 1900; $mon += 1;
 	my $datenext = sprintf('%02d.%02d.%04d', $mday, $mon, $year);
 
-	my $delimiter_text_reading = AttrVal($name,"delimiter_text_reading"," und ");
+	my $delimiter_text_reading = " " . AttrVal($name,"delimiter_text_reading","und") . " ";
 	my $delimiter_reading = AttrVal($name,"delimiter_reading","|");
 
 	my $nowAbfall_tage = -1;
