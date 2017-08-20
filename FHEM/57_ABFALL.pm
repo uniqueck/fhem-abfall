@@ -214,7 +214,7 @@ sub ABFALL_GetUpdate($){
 				$nowAbfall_description .= $delimiter_text_reading . $event->{description};
 			}
 			$nowAbfall_tage = $event->{days};
-			$nowAbfall_datum = $event->{date};
+			$nowAbfall_datum = $event->{dateFormatted};
 			$nowAbfall_weekday = $event->{weekday};
 			$now_readingTermin = $readingTermin;
 		} elsif	($nextAbfall_tage == -1 || $nextAbfall_tage > $event->{days} || $nextAbfall_tage == $event->{days} ) {
@@ -238,7 +238,7 @@ sub ABFALL_GetUpdate($){
 				$nextAbfall_description .= $delimiter_text_reading . $event->{description};
 			}
 			$nextAbfall_tage = $event->{days};
-			$nextAbfall_datum = $event->{date};
+			$nextAbfall_datum = $event->{dateFormatted};
 			$nextAbfall_weekday = $event->{weekday};
 			if ($next_readingTermin eq "") {
 				$next_readingTermin = $readingTermin;
@@ -259,8 +259,8 @@ sub ABFALL_GetUpdate($){
 		readingsBulkUpdate($hash, $readingTermin ."_tage", $event->{days}) if ($enable_old_readingnames);
 		readingsBulkUpdate($hash, $readingTermin ."_days", $event->{days});
 		readingsBulkUpdate($hash, $readingTermin ."_text", $event->{summary});
-		readingsBulkUpdate($hash, $readingTermin ."_datum", $event->{date}) if ($enable_old_readingnames);
-		readingsBulkUpdate($hash, $readingTermin ."_date", $event->{date});
+		readingsBulkUpdate($hash, $readingTermin ."_datum", $event->{dateFormatted}) if ($enable_old_readingnames);
+		readingsBulkUpdate($hash, $readingTermin ."_date", $event->{dateFormatted});
 		readingsBulkUpdate($hash, $readingTermin ."_wochentag", $event->{weekday}) if ($enable_old_readingnames);
 		readingsBulkUpdate($hash, $readingTermin ."_weekday", $event->{weekday});
 		readingsBulkUpdate($hash, $readingTermin ."_location", $event->{location});
@@ -471,7 +471,8 @@ sub getEvents($){
 						$foundItem->{weekday} = $wdayname;
 						$foundItem->{location} = $eventLocation;
 						$foundItem->{description} = $eventDescription;
-						$foundItem->{date} = $eventDateFormatted;
+						$foundItem->{date} = $eventDate;
+						$foundItem->{dateFormatted} = $eventDateFormatted;
 						$foundItem->{days} = $dayDiff;
 					}
 				} else {
@@ -485,9 +486,10 @@ sub getEvents($){
 						location => $eventLocation,
 						description => $eventDescription,
 						readingName => $cleanReadingName,
-						date => $eventDateFormatted,
+						date => $eventDate,
 						days => $dayDiff,
-						calendar => $calendername};
+						calendar => $calendername,
+						dateFormatted => $eventDateFormatted};
 				}
 			}
 		} # end for each uid
