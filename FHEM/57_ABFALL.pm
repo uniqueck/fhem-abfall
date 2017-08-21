@@ -414,7 +414,7 @@ sub getEvents($){
 				}
 
 				my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);
-				next if ($eventDate < $now_time);
+				next if ($dayDiff < 0);
 
 				my $eventText = $summarys[$i];
 				# skip events of filter conditions
