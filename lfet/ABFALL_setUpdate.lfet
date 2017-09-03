@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.03 at 23:40:00 CEST" saveUser="constantin">
+  <Conditions>
+    <Condition uId="1504126444840415">
+      <Title language="German" value="step"/>
+      <ConditionOccurrences>
+        <ConditionOccurrence uId="1504126505502473">
+          <Symbol language="German" value="1"/>
+          <Title language="German" value="cleanup step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$step eq $$symbol"/>
+        </ConditionOccurrence>
+        <ConditionOccurrence uId="1504126505502475">
+          <Symbol language="German" value="2"/>
+          <Title language="German" value="next event step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$step eq $$symbol"/>
+        </ConditionOccurrence>
+        <ConditionOccurrence uId="15044579806883719">
+          <Symbol language="German" value="3"/>
+          <Title language="German" value="event step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$step eq $$symbol"/>
+        </ConditionOccurrence>
+        <ConditionOccurrence uId="15044723552859042">
+          <Symbol language="German" value="4"/>
+          <Title language="German" value="counting pickup step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$step eq $$symbol"/>
+        </ConditionOccurrence>
+        <ConditionOccurrence uId="150447308044810652">
+          <Symbol language="German" value="5"/>
+          <Title language="German" value="now step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$step eq $$symbol"/>
+        </ConditionOccurrence>
+        <ConditionOccurrence uId="150447346265912649">
+          <Symbol language="German" value="6"/>
+          <Title language="German" value="next step"/>
+        </ConditionOccurrence>
+      </ConditionOccurrences>
+    </Condition>
+    <Condition uId="15041328493073228">
+      <Title language="German" value="counting pickups"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="AttrVal($name, &quot;enable_counting_pickups&quot;, &quot;0&quot;)"/>
+    </Condition>
+    <Condition uId="15044727305939223">
+      <Title language="German" value="reading pickups initialized"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="ReadingsVal($name, $actualEvent-&gt;{readingName} . &quot;_pickups&quot;, &quot;-1&quot;) &gt; -1"/>
+    </Condition>
+    <Condition uId="15044727559239231">
+      <Title language="German" value="reading pickups used initialized"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="ReadingsVal($name, $actualEvent-&gt;{readingName} . &quot;_pickups_used&quot;, &quot;-1&quot;) &gt; -1"/>
+    </Condition>
+    <Condition uId="15044572584432963">
+      <Title language="German" value="has more events"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$eventIndex &lt; scalar(@events)"/>
+    </Condition>
+    <Condition uId="150447427126815207">
+      <Title language="German" value="event readingName is empty"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$actualEvent-&gt;{readingName} eq &quot;&quot;"/>
+    </Condition>
+    <Condition uId="15044579445293605">
+      <Title language="German" value="event days equals 0"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$actualEvent-&gt;{days} eq 0"/>
+    </Condition>
+    <Condition uId="15044686051385640">
+      <Title language="German" value="next days initialized"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$nextAbfall_tage &gt; -1"/>
+    </Condition>
+    <Condition uId="15044691498715649">
+      <Title language="German" value="event days &lt; next days"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$actualEvent-&gt;{days} &lt; $nextAbfall_tage"/>
+    </Condition>
+    <Condition uId="15044693045695661">
+      <Title language="German" value="event days = next days"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$actualEvent-&gt;{days} == $nextAbfall_tage"/>
+    </Condition>
+    <Condition uId="150447318859311609">
+      <Title language="German" value="now days = 0"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$nowAbfall_tage == 0"/>
+    </Condition>
+    <Condition uId="150447403778514584">
+      <Title language="German" value="last pickup &lt;&gt; actual pickup"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$lastNow ne $now_readingTermin"/>
+    </Condition>
+    <Condition uId="150447369149913703">
+      <Title language="German" value="next days &gt; 0"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$nextAbfall_tage &gt; 0"/>
+    </Condition>
+  </Conditions>
+  <Actions>
+    <Action uId="11446800828767967">
+      <Title language="German" value="clean readings"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="Log3 $name, 5, &quot;ABFALL_GetUpdate ($name) - delete readings&quot;;&lt;br/&gt;fhem(&quot;deletereading $name next&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name now&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_tage&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_days&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_wochentag&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_weekday&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_text&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_datum&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_date&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_location&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_description&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name state&quot;, 1);"/>
+    </Action>
+    <Action uId="150419700844482">
+      <Title language="German" value="clean pickup readings"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="fhem(&quot;deletereading $name .*_pickups&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_pickups_used&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_abholungen&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_abholungen_genutzt&quot;, 1);"/>
+    </Action>
+    <Action uId="15044565177332275">
+      <Title language="German" value="getEvents"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@events = ABFALL_getEvents($hash);"/>
+      <UrlsOut>
+        <Url title="load events" url="file:///./ABFALL_getEvents.lfet"/>
+      </UrlsOut>
+    </Action>
+    <Action uId="15044569386652684">
+      <Title language="German" value="readingsBeginUpdate"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsBeginUpdate($hash);"/>
+    </Action>
+    <Action uId="15044569776202689">
+      <Title language="German" value="readingsEndUpdate"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsEndUpdate($hash,1); #end update"/>
+    </Action>
+    <Action uId="15044573427063179">
+      <Title language="German" value="next event"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$actualEvent = $events[$eventIndex];&lt;br/&gt;$eventIndex++;"/>
+    </Action>
+    <Action uId="15044584864494590">
+      <Title language="German" value="append as now"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="if($nowAbfall_text eq &quot;&quot;) {&lt;br/&gt;&amp;#009;$nowAbfall_text = $actualEvent-&gt;{summary};&lt;br/&gt;} else {&lt;br/&gt;&amp;#009;$nowAbfall_text .= $delimiter_text_reading . $actualEvent-&gt;{summary};&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;if($nowAbfall_location eq &quot;&quot;) {&lt;br/&gt;&amp;#009;$nowAbfall_location = $actualEvent-&gt;{location};&lt;br/&gt;} elsif ($nowAbfall_location ne $actualEvent-&gt;{location}) {&lt;br/&gt;&amp;#009;# TODO change check to regex expression contains&lt;br/&gt;&amp;#009;$nowAbfall_location .= $delimiter_text_reading . $actualEvent-&gt;{location};&lt;br/&gt;}&lt;br/&gt;# check if description reading is the same&lt;br/&gt;if($nowAbfall_description eq &quot;&quot;) {&lt;br/&gt;&amp;#009;$nowAbfall_description = $actualEvent-&gt;{description};&lt;br/&gt;} elsif ($nowAbfall_description ne $actualEvent-&gt;{description}) {&lt;br/&gt;&amp;#009;# TODO change check to regex expression contains&lt;br/&gt;&amp;#009;$nowAbfall_description .= $delimiter_text_reading . $actualEvent-&gt;{description};&lt;br/&gt;}&lt;br/&gt;$nowAbfall_tage = $actualEvent-&gt;{days};&lt;br/&gt;$nowAbfall_datum = $actualEvent-&gt;{dateFormatted};&lt;br/&gt;$nowAbfall_weekday = $actualEvent-&gt;{weekday};&lt;br/&gt;$now_readingTermin = $actualEvent-&gt;{readingName};"/>
+    </Action>
+    <Action uId="15044679156115634">
+      <Title language="German" value="append next"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="if ($nextAbfall_text eq &quot;&quot;) {&lt;br/&gt;&amp;#009;$nextAbfall_text = $actualEvent-&gt;{summary};&lt;br/&gt;} else {&lt;br/&gt;&amp;#009;$nextAbfall_text .= $delimiter_text_reading . $actualEvent-&gt;{summary};&lt;br/&gt;}&lt;br/&gt;# check if location reading is the same&lt;br/&gt;if ($nextAbfall_location eq &quot;&quot;) {&lt;br/&gt;&amp;#009;$nextAbfall_location = $actualEvent-&gt;{location};&lt;br/&gt;} else {&lt;br/&gt;&amp;#009;# TODO check if nextAbfall_location contains $actualEvent-&gt;{location}&lt;br/&gt;&amp;#009;$nextAbfall_location .= $delimiter_text_reading . $actualEvent-&gt;{location};&lt;br/&gt;}&lt;br/&gt;# check if description reading is the same&lt;br/&gt;if ($nextAbfall_description eq &quot;&quot;) {&lt;br/&gt;&amp;#009;$nextAbfall_description = $actualEvent-&gt;{description};&lt;br/&gt;} else {&lt;br/&gt;&amp;#009;# TODO check if nextAbfall_location contains $actualEvent-&gt;{location}&lt;br/&gt;&amp;#009;$nextAbfall_description .= $delimiter_text_reading . $actualEvent-&gt;{description};&lt;br/&gt;}&lt;br/&gt;$nextAbfall_tage = $actualEvent-&gt;{days};&lt;br/&gt;$nextAbfall_datum = $actualEvent-&gt;{dateFormatted};&lt;br/&gt;$nextAbfall_weekday = $actualEvent-&gt;{weekday};&lt;br/&gt;if ($next_readingTermin eq &quot;&quot;) {&lt;br/&gt;&amp;#009;$next_readingTermin = $actualEvent-&gt;{readingName};&lt;br/&gt;} else {&lt;br/&gt;&amp;#009;$next_readingTermin .= $delimiter_reading . $actualEvent-&gt;{readingName};&lt;br/&gt;}"/>
+    </Action>
+    <Action uId="15044693595165675">
+      <Title language="German" value="set next"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$nextAbfall_text = $actualEvent-&gt;{summary};&lt;br/&gt;$nextAbfall_location = $actualEvent-&gt;{location};&lt;br/&gt;$nextAbfall_description = $actualEvent-&gt;{description};&lt;br/&gt;$nextAbfall_tage = $actualEvent-&gt;{days};&lt;br/&gt;$nextAbfall_datum = $actualEvent-&gt;{dateFormatted};&lt;br/&gt;$nextAbfall_weekday = $actualEvent-&gt;{weekday};&lt;br/&gt;$next_readingTermin = $actualEvent-&gt;{readingName};"/>
+    </Action>
+    <Action uId="15044679217015636">
+      <Title language="German" value="set as reading"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="my $enable_old_readingnames = AttrVal($name, &quot;enable_old_readingnames&quot;, &quot;0&quot;);&lt;br/&gt;my $readingTermin = $actualEvent-&gt;{readingName}; &lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_tage&quot;, $actualEvent-&gt;{days}) if ($enable_old_readingnames);&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_days&quot;, $actualEvent-&gt;{days});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_text&quot;, $actualEvent-&gt;{summary});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_datum&quot;, $actualEvent-&gt;{dateFormatted}) if ($enable_old_readingnames);&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_date&quot;, $actualEvent-&gt;{dateFormatted});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_wochentag&quot;, $actualEvent-&gt;{weekday}) if ($enable_old_readingnames);&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_weekday&quot;, $actualEvent-&gt;{weekday});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_location&quot;, $actualEvent-&gt;{location});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_description&quot;, $actualEvent-&gt;{description});"/>
+    </Action>
+    <Action uId="150447327529411618">
+      <Title language="German" value="set now reading"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsBulkUpdate($hash, &quot;now&quot;, $now_readingTermin);&lt;br/&gt;readingsBulkUpdate($hash, &quot;now_text&quot;, $nowAbfall_text);&lt;br/&gt;readingsBulkUpdate($hash, &quot;now_date&quot;, $nowAbfall_datum);&lt;br/&gt;readingsBulkUpdate($hash, &quot;now_weekday&quot;, $nowAbfall_weekday);&lt;br/&gt;readingsBulkUpdate($hash, &quot;now_location&quot;, $nowAbfall_location);&lt;br/&gt;readingsBulkUpdate($hash, &quot;now_description&quot;, $nowAbfall_description);&lt;br/&gt;&lt;br/&gt;my $enable_old_readingnames = AttrVal($name, &quot;enable_old_readingnames&quot;, &quot;0&quot;);&lt;br/&gt;readingsBulkUpdate($hash, &quot;now_datum&quot;, $nowAbfall_datum) if ($enable_old_readingnames);&lt;br/&gt;readingsBulkUpdate($hash, &quot;now_wochentag&quot;, $nowAbfall_weekday) if ($enable_old_readingnames);"/>
+    </Action>
+    <Action uId="150447408782814593">
+      <Title language="German" value="increment last pickup"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="Log3 $name, 4, &quot;$$dtname($name) - inc count for pickups for $now_readingTermin&quot;;&lt;br/&gt;my $now_readingTermin_count =  ReadingsVal($hash, $now_readingTermin . &quot;_pickups&quot;, &quot;0&quot;);&lt;br/&gt;$now_readingTermin_count++;&lt;br/&gt;readingsBulkUpdate($hash, $now_readingTermin . &quot;_pickups&quot;, $now_readingTermin_count);"/>
+    </Action>
+    <Action uId="150447372568713712">
+      <Title language="German" value="set next reading"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsBulkUpdate($hash, &quot;next&quot;, $next_readingTermin . &quot;_&quot; . $nextAbfall_tage);&lt;br/&gt;readingsBulkUpdate($hash, &quot;next_days&quot;, $nextAbfall_tage);&lt;br/&gt;readingsBulkUpdate($hash, &quot;next_text&quot;, $nextAbfall_text);&lt;br/&gt;readingsBulkUpdate($hash, &quot;next_date&quot;, $nextAbfall_datum);&lt;br/&gt;readingsBulkUpdate($hash, &quot;next_weekday&quot;, $nextAbfall_weekday);&lt;br/&gt;readingsBulkUpdate($hash, &quot;next_location&quot;, $nextAbfall_location);&lt;br/&gt;readingsBulkUpdate($hash, &quot;next_description&quot;, $nextAbfall_description);&lt;br/&gt;&lt;br/&gt;my $enable_old_readingnames = AttrVal($name, &quot;enable_old_readingnames&quot;, &quot;0&quot;);&lt;br/&gt;readingsBulkUpdate($hash, &quot;next_tage&quot;, $nextAbfall_tage) if ($enable_old_readingnames);&lt;br/&gt;readingsBulkUpdate($hash, &quot;next_datum&quot;, $nextAbfall_datum) if ($enable_old_readingnames);&lt;br/&gt;readingsBulkUpdate($hash, &quot;next_wochentag&quot;, $nextAbfall_weekday) if ($enable_old_readingnames);&lt;br/&gt;"/>
+    </Action>
+    <Action uId="150447383431713997">
+      <Title language="German" value="set state next days"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsBulkUpdate($hash, &quot;state&quot;, $nextAbfall_tage);"/>
+    </Action>
+    <Action uId="150447384566613999">
+      <Title language="German" value="set state no pickups"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsBulkUpdate($hash, &quot;state&quot;, &quot;Keine Abholungen&quot;);"/>
+    </Action>
+    <Action uId="15044728098449247">
+      <Title language="German" value="initialize pickups"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsBulkUpdate($hash, $actualEvent-&gt;{readingName} .&quot;_pickups&quot;, &quot;0&quot;);"/>
+    </Action>
+    <Action uId="15044728198509249">
+      <Title language="German" value="initialize pickups used"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsBulkUpdate($hash, $actualEvent-&gt;{readingName} .&quot;_pickups_used&quot;, &quot;0&quot;);"/>
+    </Action>
+    <Action uId="150447431385615220">
+      <Title language="German" value="warn empty readingname"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="Log3 $name, 2, &quot;$$dtname($name) - readingName is empty for uid($actualEvent-&gt;{uid})&quot;;"/>
+    </Action>
+    <Action uId="1504126438918413">
+      <Title language="German" value="step"/>
+      <ActionOccurrences>
+        <ActionOccurrence uId="1504126582566572">
+          <Symbol language="German" value="E"/>
+          <Title language="German" value="end step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step = -1;"/>
+        </ActionOccurrence>
+        <ActionOccurrence uId="1504126582786580">
+          <Symbol language="German" value="2"/>
+          <Title language="German" value="event step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step = $$symbol;"/>
+        </ActionOccurrence>
+        <ActionOccurrence uId="15044579983723821">
+          <Symbol language="German" value="3"/>
+          <Title language="German" value="event step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step = $$symbol"/>
+        </ActionOccurrence>
+        <ActionOccurrence uId="15044728561709480">
+          <Symbol language="German" value="4"/>
+          <Title language="German" value="counting pickup step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step = $$symbol"/>
+        </ActionOccurrence>
+        <ActionOccurrence uId="150447310870911117">
+          <Symbol language="German" value="5"/>
+          <Title language="German" value="now step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step = $$symbol"/>
+        </ActionOccurrence>
+        <ActionOccurrence uId="150447348558513162">
+          <Symbol language="German" value="6"/>
+          <Title language="German" value="next step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step = $$symbol;"/>
+        </ActionOccurrence>
+      </ActionOccurrences>
+    </Action>
+  </Actions>
+  <Rules lastId="94">
+    <Rule id="39">
+      <ActionLink link="11446800828767967"/>
+      <ConditionOccurrenceLink link="1504126505502473"/>
+      <ActionOccurrenceLink link="1504126582786580"/>
+      <ConditionLink link="15041328493073228" conditionState="true"/>
+      <ActionLink link="15044565177332275"/>
+      <ActionLink link="15044569386652684"/>
+    </Rule>
+    <Rule id="40">
+      <ActionLink link="11446800828767967"/>
+      <ConditionOccurrenceLink link="1504126505502473"/>
+      <ActionOccurrenceLink link="1504126582786580"/>
+      <ConditionLink link="15041328493073228" conditionState="false"/>
+      <ActionLink link="150419700844482"/>
+      <ActionLink link="15044565177332275"/>
+      <ActionLink link="15044569386652684"/>
+    </Rule>
+    <Rule id="56">
+      <ConditionOccurrenceLink link="1504126505502475"/>
+      <ActionOccurrenceLink link="15044579983723821"/>
+      <ConditionLink link="15044572584432963" conditionState="true"/>
+      <ActionLink link="15044573427063179"/>
+    </Rule>
+    <Rule id="43">
+      <ConditionOccurrenceLink link="1504126505502475"/>
+      <ActionOccurrenceLink link="1504126582566572"/>
+      <ConditionLink link="15044572584432963" conditionState="false"/>
+      <ActionLink link="15044569776202689"/>
+    </Rule>
+    <Rule id="89">
+      <ConditionOccurrenceLink link="15044579806883719"/>
+      <ConditionLink link="150447427126815207" conditionState="true"/>
+      <ActionOccurrenceLink link="1504126582786580"/>
+      <ActionLink link="150447431385615220"/>
+    </Rule>
+    <Rule id="90">
+      <ConditionOccurrenceLink link="15044579806883719"/>
+      <ConditionLink link="15044579445293605" conditionState="true"/>
+      <ActionOccurrenceLink link="15044728561709480"/>
+      <ActionLink link="15044584864494590"/>
+      <ActionLink link="15044679217015636"/>
+      <ConditionLink link="150447427126815207" conditionState="false"/>
+    </Rule>
+    <Rule id="91">
+      <ConditionOccurrenceLink link="15044579806883719"/>
+      <ConditionLink link="15044579445293605" conditionState="false"/>
+      <ActionOccurrenceLink link="15044728561709480"/>
+      <ConditionLink link="15044686051385640" conditionState="true"/>
+      <ConditionLink link="15044691498715649" conditionState="true"/>
+      <ActionLink link="15044693595165675"/>
+      <ActionLink link="15044679217015636"/>
+      <ConditionLink link="150447427126815207" conditionState="false"/>
+    </Rule>
+    <Rule id="92">
+      <ConditionOccurrenceLink link="15044579806883719"/>
+      <ConditionLink link="15044579445293605" conditionState="false"/>
+      <ActionOccurrenceLink link="15044728561709480"/>
+      <ConditionLink link="15044686051385640" conditionState="true"/>
+      <ConditionLink link="15044691498715649" conditionState="false"/>
+      <ConditionLink link="15044693045695661" conditionState="true"/>
+      <ActionLink link="15044679156115634"/>
+      <ActionLink link="15044679217015636"/>
+      <ConditionLink link="150447427126815207" conditionState="false"/>
+    </Rule>
+    <Rule id="93">
+      <ConditionOccurrenceLink link="15044579806883719"/>
+      <ConditionLink link="15044579445293605" conditionState="false"/>
+      <ActionOccurrenceLink link="15044728561709480"/>
+      <ConditionLink link="15044686051385640" conditionState="true"/>
+      <ConditionLink link="15044691498715649" conditionState="false"/>
+      <ConditionLink link="15044693045695661" conditionState="false"/>
+      <ActionLink link="15044679217015636"/>
+      <ConditionLink link="150447427126815207" conditionState="false"/>
+    </Rule>
+    <Rule id="94">
+      <ConditionOccurrenceLink link="15044579806883719"/>
+      <ConditionLink link="15044579445293605" conditionState="false"/>
+      <ActionOccurrenceLink link="15044728561709480"/>
+      <ConditionLink link="15044686051385640" conditionState="false"/>
+      <ActionLink link="15044693595165675"/>
+      <ActionLink link="15044679217015636"/>
+      <ConditionLink link="150447427126815207" conditionState="false"/>
+    </Rule>
+    <Rule id="72">
+      <ConditionOccurrenceLink link="15044723552859042"/>
+      <ConditionLink link="15041328493073228" conditionState="true"/>
+      <ConditionLink link="15044727305939223" conditionState="true"/>
+      <ConditionLink link="15044727559239231" conditionState="true"/>
+      <ActionOccurrenceLink link="150447310870911117"/>
+    </Rule>
+    <Rule id="73">
+      <ConditionOccurrenceLink link="15044723552859042"/>
+      <ConditionLink link="15041328493073228" conditionState="true"/>
+      <ConditionLink link="15044727305939223" conditionState="true"/>
+      <ConditionLink link="15044727559239231" conditionState="false"/>
+      <ActionLink link="15044728198509249"/>
+      <ActionOccurrenceLink link="150447310870911117"/>
+    </Rule>
+    <Rule id="74">
+      <ConditionOccurrenceLink link="15044723552859042"/>
+      <ConditionLink link="15041328493073228" conditionState="true"/>
+      <ConditionLink link="15044727305939223" conditionState="false"/>
+      <ConditionLink link="15044727559239231" conditionState="true"/>
+      <ActionLink link="15044728098449247"/>
+      <ActionOccurrenceLink link="150447310870911117"/>
+    </Rule>
+    <Rule id="75">
+      <ConditionOccurrenceLink link="15044723552859042"/>
+      <ConditionLink link="15041328493073228" conditionState="true"/>
+      <ConditionLink link="15044727305939223" conditionState="false"/>
+      <ConditionLink link="15044727559239231" conditionState="false"/>
+      <ActionLink link="15044728098449247"/>
+      <ActionLink link="15044728198509249"/>
+      <ActionOccurrenceLink link="150447310870911117"/>
+    </Rule>
+    <Rule id="76">
+      <ConditionOccurrenceLink link="15044723552859042"/>
+      <ConditionLink link="15041328493073228" conditionState="false"/>
+      <ActionOccurrenceLink link="150447310870911117"/>
+    </Rule>
+    <Rule id="87">
+      <ConditionOccurrenceLink link="150447308044810652"/>
+      <ActionOccurrenceLink link="150447348558513162"/>
+      <ConditionLink link="150447318859311609" conditionState="true"/>
+      <ActionLink link="150447327529411618"/>
+      <ConditionLink link="150447403778514584" conditionState="true"/>
+      <ActionLink link="150447408782814593"/>
+    </Rule>
+    <Rule id="88">
+      <ConditionOccurrenceLink link="150447308044810652"/>
+      <ActionOccurrenceLink link="150447348558513162"/>
+      <ConditionLink link="150447318859311609" conditionState="true"/>
+      <ActionLink link="150447327529411618"/>
+      <ConditionLink link="150447403778514584" conditionState="false"/>
+    </Rule>
+    <Rule id="81">
+      <ConditionOccurrenceLink link="150447308044810652"/>
+      <ActionOccurrenceLink link="150447348558513162"/>
+      <ConditionLink link="150447318859311609" conditionState="false"/>
+    </Rule>
+    <Rule id="85">
+      <ConditionOccurrenceLink link="150447346265912649"/>
+      <ActionOccurrenceLink link="1504126582786580"/>
+      <ConditionLink link="150447369149913703" conditionState="true"/>
+      <ActionLink link="150447372568713712"/>
+      <ActionLink link="150447383431713997"/>
+    </Rule>
+    <Rule id="86">
+      <ConditionOccurrenceLink link="150447346265912649"/>
+      <ActionOccurrenceLink link="1504126582786580"/>
+      <ConditionLink link="150447369149913703" conditionState="false"/>
+      <ActionLink link="150447384566613999"/>
+    </Rule>
+  </Rules>
+  <Title language="German" value="ABFALL: setUpdate"/>
+  <UrlsOut>
+    <Url title="Ordner" url="file:///./"/>
+  </UrlsOut>
+  <Text language="German" value="SourceCode&lt;br/&gt;&lt;br/&gt;# lese alle Termine von allen Kalendern und gebe sie in einer Liste zurück&lt;br/&gt;sub getEvents($){&lt;br/&gt;&amp;#009;my ($hash) = @_;&lt;br/&gt;&amp;#009;my @terminliste ;&lt;br/&gt;&amp;#009;my $name = $hash-&gt;{NAME};&lt;br/&gt;&amp;#009;my @calendernamen = split( &quot;,&quot;, $hash-&gt;{KALENDER});&lt;br/&gt;&lt;br/&gt;&amp;#009;my $cleanReadingRegex = AttrVal($name,&quot;abfall_clear_reading_regex&quot;,&quot;&quot;);&lt;br/&gt;&amp;#009;my $calendarNamePraefix = AttrVal($name,&quot;calendarname_praefix&quot;,&quot;1&quot;);&lt;br/&gt;&lt;br/&gt;&amp;#009;my %replacement = (&quot;ä&quot; =&gt; &quot;ae&quot;, &quot;Ä&quot; =&gt; &quot;Ae&quot;, &quot;ü&quot; =&gt; &quot;ue&quot;, &quot;Ü&quot; =&gt; &quot;Ue&quot;, &quot;ö&quot; =&gt; &quot;oe&quot;, &quot;Ö&quot; =&gt; &quot;Oe&quot;, &quot;ß&quot; =&gt; &quot;ss&quot; );&lt;br/&gt;&amp;#009;my $replacementKeys= join (&quot;|&quot;, keys(%replacement));&lt;br/&gt;&lt;br/&gt;&amp;#009;my $wdMapping = AttrVal($name,&quot;weekday_mapping&quot;,&quot;Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag&quot;);&lt;br/&gt;&amp;#009;my $date_style = AttrVal($name, &quot;date_style&quot;,&quot;date&quot;);&lt;br/&gt;&amp;#009;my @days = split(&quot;\ &quot;, $wdMapping);&lt;br/&gt;&amp;#009;Log3 $name, 5,  &quot;getEvents($name) - weekDayMapping ($wdMapping)&quot; ;&lt;br/&gt;&lt;br/&gt;&amp;#009;foreach my $calendername (@calendernamen){&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;my $all = CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;uid&quot;, &quot;next&quot;));&lt;br/&gt;&amp;#009;&amp;#009;my @termine=split(/\n/,$all);&lt;br/&gt;&amp;#009;&amp;#009;my $now_time = localtime();&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;foreach my $uid (@termine){&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;# get all information for one uid&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;my @starts = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;start&quot;, $uid)));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;my @summarys = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;summary&quot;, $uid)));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;my @locations = split(/\n/, CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;location&quot;, $uid)));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;my @descriptions = split(/\n/, CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;description&quot;, $uid)));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;# next if (not (scalar(@starts) eq scalar(@summarys) eq scalar(@locations) eq scalar(@descriptions)));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;for(my $i = 0; $i &lt;= scalar(@starts); $i++) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;next if (not defined($starts[$i]));&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;next if ($starts[$i] eq '');&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;Log3 $name, 5, &quot;getEvents($name) -  calendar($calendername) - uid($uid) - start($starts[$i])&quot;;&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# skip events in the past&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my @SplitDt = split(/ /,$starts[$i]);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my @SplitDate = split(/\./,$SplitDt[0]);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my @SplitTime = split(/\:/,$SplitDt[1]);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $eventDate = timelocal($SplitTime[2],$SplitTime[1],$SplitTime[0],$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $eventDateFormatted = $SplitDt[0];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if ($date_style eq &quot;dateTime&quot;) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$eventDateFormatted = $SplitDt[0] . &quot; &quot; . $SplitDt[1];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# next if ($eventDate &lt; $now_time);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;next if ($dayDiff &lt; 0);&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $eventText = $summarys[$i];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# skip events of filter conditions&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;next if (skipEvent($hash, $eventText));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# cleanup summary of event&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if ($cleanReadingRegex){&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$eventText =~ s/$cleanReadingRegex//g;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $cleanReadingName = $eventText;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# should add praefix from calendar&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if ($calendarNamePraefix) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$cleanReadingName = $calendername . &quot;_&quot; . $cleanReadingName;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# prepare reading name from summary of event&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$cleanReadingName =~ s/($replacementKeys)/$replacement{$1}/eg;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$cleanReadingName =~ tr/a-zA-Z0-9\-_//dc;&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;Log3 $name, 5, &quot;$SplitDt[0]&quot;;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $weekday = (localtime($eventDate))[6];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $wdayname = $days[$weekday];&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $eventLocation = $locations[$i];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $eventDescription = $descriptions[$i];&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if (not defined($eventLocation)) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$eventLocation = &quot;&quot;;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if (not defined($eventDescription)) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$eventDescription = &quot;&quot;;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;Log3 $name, 5,  &quot;getEvents($name) - calendar($calendername) - uid($uid) - start($starts[$i]) - days($dayDiff) - text($eventText) - location($eventLocation) - description($eventDescription)&quot;;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $foundItem = ();&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;foreach my $item (@terminliste ){&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $tempText= $item-&gt;{summary};&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $tempCalName= $item-&gt;{calendar};&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if ($tempText eq $eventText &amp;&amp; $tempCalName eq $calendername) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$foundItem = $item;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;last if ($foundItem);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if ($foundItem) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# Log3 $name, 5, &quot;getEvents($name) - calendar($calendername) - &quot; . $foundItem-&gt;{summary} . &quot; - allready exists!&quot;;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# if ($dayDiff &lt; $foundItem-&gt;{days} &amp;&amp; $eventDate &gt; time) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;Log3 $name, 5, &quot;getEvents($name) - calendar($calendername) - change - &quot; . $foundItem-&gt;{start} .&quot; to &quot; . $starts[$i];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{uid} = $uid;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{start} = $starts[$i];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{weekday} = $wdayname;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{location} = $eventLocation;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{description} = $eventDescription;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{date} = $eventDate;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{dateFormatted} = $eventDateFormatted;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{days} = $dayDiff;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# }&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;} else {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$eventText =~ s/\\,/,/g;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$cleanReadingName =~ s/\\,/,/g;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;push @terminliste, {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;uid =&gt; $uid,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;start =&gt; $starts[$i],&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;weekday =&gt; $wdayname,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;summary =&gt; $eventText,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;location =&gt; $eventLocation,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;description =&gt; $eventDescription,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;readingName =&gt; $cleanReadingName,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;date =&gt; $eventDate,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;days =&gt; $dayDiff,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;calendar =&gt; $calendername,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;dateFormatted =&gt; $eventDateFormatted};&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;} # end for each uid&lt;br/&gt;&amp;#009;} # end for each calendar&lt;br/&gt;&amp;#009;return @terminliste;&lt;br/&gt;} # end sub getEvents&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;sub skipEvent($@) {&lt;br/&gt;&amp;#009;my ($hash, @val) = @_;&lt;br/&gt;&amp;#009;my $event = join(' ', @val);&lt;br/&gt;&amp;#009;my $name = $hash-&gt;{NAME};&lt;br/&gt;&amp;#009;my $skip = 0;&lt;br/&gt;&amp;#009;my $filter = AttrVal($name,&quot;filter&quot;,&quot;&quot;);&lt;br/&gt;&lt;br/&gt;&amp;#009;if ($filter ne &quot;&quot;) {&lt;br/&gt;&amp;#009;&amp;#009;# skip event of filter conditions - start&lt;br/&gt;&amp;#009;&amp;#009;my @filterArray=split( ',' ,$filter);&lt;br/&gt;&amp;#009;&amp;#009;foreach my $eachFilter (@filterArray) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;# fix from fhem forum user justme1968 to support regex for filter&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;Log3 $name, 5,  &quot;skipEvent($name) - event($event) - filter($eachFilter)&quot;;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;if ($eachFilter =~ m'^/(.*)/$' &amp;&amp; $event =~ m/$1/ ) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$skip = 1;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;} elsif (index($event, $eachFilter) != -1) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$skip = 1;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;} # end foreach&lt;br/&gt;&amp;#009;} # end if filter&lt;br/&gt;&amp;#009;# skip event of filter conditions - end&lt;br/&gt;&amp;#009;Log3 $name, 5, &quot;skipEvent($name) - $event&quot; if ($skip);&lt;br/&gt;&amp;#009;return $skip;&lt;br/&gt;} # end skipEvent"/>
+  <SourceCode codeLanguage="Perl" sourceCodeType="Prolog" value="package main;&lt;br/&gt;&lt;br/&gt;use strict;&lt;br/&gt;use warnings;&lt;br/&gt;use POSIX;&lt;br/&gt;use Time::Local;&lt;br/&gt;use Time::Piece;&lt;br/&gt;use ABFALL_getEvents;&lt;br/&gt;&lt;br/&gt;sub $$dtname_Initialize($$)&lt;br/&gt;{&lt;br/&gt;  my ($hash) = @_;&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;sub $$dtname($) {&lt;br/&gt;&amp;#009;&lt;br/&gt;&amp;#009;my ($hash) = @_;&lt;br/&gt;&amp;#009;my $name = $hash-&gt;{NAME};&lt;br/&gt;&amp;#009;Log3 $name, 4, &quot;$$dtname($name) - Start&quot;;&lt;br/&gt;&lt;br/&gt;&amp;#009;&lt;br/&gt;&amp;#009;# step counter&lt;br/&gt;&amp;#009;my $step = 1;&lt;br/&gt;&lt;br/&gt;&amp;#009;# array counter&lt;br/&gt;&amp;#009;my $eventIndex = 0;&amp;#009;&lt;br/&gt;&lt;br/&gt;&amp;#009;my $lastNow = ReadingsVal($name, &quot;now&quot;, &quot;&quot;);&lt;br/&gt;&amp;#009;Log3 $name, 5, &quot;$$dtname($name) - reading lastNow $lastNow&quot;;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&amp;#009;# array for events&lt;br/&gt;&amp;#009;my @events = ();&lt;br/&gt;&lt;br/&gt;&amp;#009;my $actualEvent = ();&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&amp;#009;# readings&lt;br/&gt;&amp;#009;my $nowAbfall_tage = -1;&lt;br/&gt;&amp;#009;my $nowAbfall_text = &quot;&quot;;&lt;br/&gt;&amp;#009;my $nowAbfall_location = &quot;&quot;;&lt;br/&gt;&amp;#009;my $nowAbfall_description = &quot;&quot;;&lt;br/&gt;&amp;#009;my $nowAbfall_datum;&lt;br/&gt;&amp;#009;my $nowAbfall_weekday;&lt;br/&gt;&amp;#009;my $now_readingTermin = &quot;&quot;;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&amp;#009;my $nextAbfall_tage = -1;&lt;br/&gt;&amp;#009;my $nextAbfall_text = &quot;&quot;;&lt;br/&gt;&amp;#009;my $nextAbfall_location = &quot;&quot;;&lt;br/&gt;&amp;#009;my $nextAbfall_description = &quot;&quot;;&lt;br/&gt;&amp;#009;my $nextAbfall_datum;&lt;br/&gt;&amp;#009;my $nextAbfall_weekday;&lt;br/&gt;&amp;#009;my $next_readingTermin = &quot;&quot;;&lt;br/&gt;&lt;br/&gt;&amp;#009;# attribute values&lt;br/&gt;&amp;#009;my $delimiter_text_reading = &quot; &quot; . AttrVal($name,&quot;delimiter_text_reading&quot;,&quot;und&quot;) . &quot; &quot;;&lt;br/&gt;&amp;#009;my $delimiter_reading = AttrVal($name,&quot;delimiter_reading&quot;,&quot;|&quot;);&lt;br/&gt;&lt;br/&gt;&amp;#009;while ($step != -1) {&lt;br/&gt;&amp;#009;&lt;br/&gt;&lt;br/&gt;"/>
+  <SourceCode codeLanguage="Perl" sourceCodeType="Epilog" value="} # end while&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;1;"/>
+  <SourceCode codeLanguage="Perl" sourceCodeType="Trace" value="Log3 $name, 5, &quot;$$dtname($name) - $$dtname, $$version, $$Rule, $$Rules&quot;;"/>
+</LFET>

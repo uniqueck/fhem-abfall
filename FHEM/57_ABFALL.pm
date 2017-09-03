@@ -11,6 +11,8 @@ use warnings;
 use POSIX;
 use Time::Local;
 use Time::Piece;
+use ABFALL_getEvents;
+use ABFALL_setUpdate;
 
 sub ABFALL_Initialize($)
 {
@@ -67,7 +69,8 @@ sub ABFALL_Define($$){
 		# set default date_style
 		$attr{$name}{"date_style"} = "date";
 	}
-	InternalTimer(gettimeofday()+2, "ABFALL_GetUpdate", $hash, 0);
+	# InternalTimer(gettimeofday()+2, "ABFALL_GetUpdate", $hash, 0);
+	InternalTimer(gettimeofday()+2, "ABFALL_setUpdate", $hash, 0);
 	return undef;
 }
 
@@ -87,7 +90,8 @@ sub ABFALL_Set($@){
 	$list .= " clear:noArg count" if(AttrVal($name, "enable_counting_pickups","0"));
 
 	if ($cmd eq "update") {
-		ABFALL_GetUpdate($hash);
+		# ABFALL_GetUpdate($hash);
+		ABFALL_setUpdate($hash);
 	} elsif ($cmd eq "count") {
 		$result = ABFALL_Count($hash, $arg);
 	} elsif ($cmd eq "clear") {
@@ -187,7 +191,11 @@ sub ABFALL_GetUpdate($){
 
 
 	readingsBeginUpdate($hash); #start update
-	my @events =  getEvents($hash);
+	my @events =  ABFALL_getEvents($hash);
+	# my $newSize = scalar(@events);
+	# @events =  getEvents($hash);
+	# my $oldSize = scalar(@events);
+	# Log3 $name, 5, "OldSize: $oldSize NewSize: $newSize";
 
 	foreach my $event (@events) {
 		my $readingTermin = $event->{readingName};
@@ -378,12 +386,14 @@ sub getEvents($){
 	my $wdMapping = AttrVal($name,"weekday_mapping","Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag");
 	my $date_style = AttrVal($name, "date_style","date");
 	my @days = split("\ ", $wdMapping);
-	Log3 $name, 5,  "getEvents($name) - weekDayMapping ($wdMapping)" ;
+	Log3 $name, 5,  "getEvents($name) - weekDayMapping ($wdMapping)";
 
 	foreach my $calendername (@calendernamen){
 
 		my $all = CallFn($calendername, "GetFn", $defs{$calendername},(" ","uid", "next"));
 		my @termine=split(/\n/,$all);
+		my $size = scalar(@termine);
+		Log3 $name, 5, "getEvents($name) - size of events : $size";
 		my $now_time = localtime();
 
 		foreach my $uid (@termine){
@@ -414,7 +424,8 @@ sub getEvents($){
 				}
 
 				my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);
-				next if ($eventDate < $now_time);
+				# next if ($eventDate < $now_time);
+				next if ($dayDiff < 0);
 
 				my $eventText = $summarys[$i];
 				# skip events of filter conditions
@@ -449,7 +460,7 @@ sub getEvents($){
 					$eventDescription = "";
 				}
 
-				Log3 $name, 5,  "getEvents($name) - calendar($calendername) - uid($uid) -start($starts[$i]) - text($eventText) - location($eventLocation) - description($eventDescription)";
+				Log3 $name, 5,  "getEvents($name) - calendar($calendername) - uid($uid) - start($starts[$i]) - days($dayDiff) - text($eventText) - location($eventLocation) - description($eventDescription)";
 
 
 				my $foundItem = ();
@@ -463,18 +474,18 @@ sub getEvents($){
 				}
 
 				if ($foundItem) {
-					Log3 $name, 5, "getEvents($name) - calendar($calendername) - " . $foundItem->{summary} . " - allready exists!";
-					if ($eventDate < $foundItem->{date} && $eventDate > time) {
-						Log3 $name, 5, "getEvents($name) - calendar($calendername) - change - " . $foundItem->{start} ." to " . $starts[$i];
-						$foundItem->{uid} = $uid;
-						$foundItem->{start} = $starts[$i];
-						$foundItem->{weekday} = $wdayname;
-						$foundItem->{location} = $eventLocation;
-						$foundItem->{description} = $eventDescription;
-						$foundItem->{date} = $eventDate;
-						$foundItem->{dateFormatted} = $eventDateFormatted;
-						$foundItem->{days} = $dayDiff;
-					}
+					# Log3 $name, 5, "getEvents($name) - calendar($calendername) - " . $foundItem->{summary} . " - allready exists!";
+					# if ($dayDiff < $foundItem->{days} && $eventDate > time) {
+					#	Log3 $name, 5, "getEvents($name) - calendar($calendername) - change - " . $foundItem->{start} ." to " . $starts[$i];
+					#	$foundItem->{uid} = $uid;
+					#	$foundItem->{start} = $starts[$i];
+					#	$foundItem->{weekday} = $wdayname;
+					#	$foundItem->{location} = $eventLocation;
+					#	$foundItem->{description} = $eventDescription;
+					#	$foundItem->{date} = $eventDate;
+					#	$foundItem->{dateFormatted} = $eventDateFormatted;
+					#	$foundItem->{days} = $dayDiff;
+					# }
 				} else {
 					$eventText =~ s/\\,/,/g;
 					$cleanReadingName =~ s/\\,/,/g;
@@ -510,6 +521,7 @@ sub skipEvent($@) {
 		my @filterArray=split( ',' ,$filter);
 		foreach my $eachFilter (@filterArray) {
 			# fix from fhem forum user justme1968 to support regex for filter
+			Log3 $name, 5,  "skipEvent($name) - event($event) - filter($eachFilter)";
 			if ($eachFilter =~ m'^/(.*)/$' && $event =~ m/$1/ ) {
 				$skip = 1;
 			} elsif (index($event, $eachFilter) != -1) {
@@ -557,7 +569,7 @@ sub skipEvent($@) {
 		<li><b>delimiter_reading </b></li>
 			delimiter for join reading name on readings now and next<br>
 		<li><b>filter </b></li>
-			filter to keep events, possible values regex or string with event name parts<br>
+			filter to skip events, possible values regex or string with event name parts<br>
 	</ul>
 =end html
 
@@ -592,7 +604,7 @@ sub skipEvent($@) {
 			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen<br>
 			gilt nur für die readings next und now
 		<li><b>filter </b></li>
-			Zeichenkette zum Filter der Events aus den Kalendern, es sind auch regex möglich<br>
+			Zeichenkette zum Ausfiltern der Events aus den Kalendern, es sind auch regex möglich<br>
 	</ul>
 =end html_DE
 =cut
