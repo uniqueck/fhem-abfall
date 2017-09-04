@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.04 at 23:22:46 CEST" saveUser="constantin">
+<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.05 at 00:05:16 CEST" saveUser="constantin">
   <Conditions>
     <Condition uId="1504126444840415">
       <Title language="German" value="step"/>
@@ -92,7 +92,7 @@
   <Actions>
     <Action uId="11446800828767967">
       <Title language="German" value="clean readings"/>
-      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="Log3 $name, 5, &quot;ABFALL_GetUpdate ($name) - delete readings&quot;;&lt;br/&gt;fhem(&quot;deletereading $name next&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name now&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_tage&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_days&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_wochentag&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_weekday&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_text&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_datum&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_date&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_location&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_description&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name state&quot;, 1);"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="Log3 $name, 5, &quot;ABFALL_GetUpdate ($name) - delete readings&quot;;&lt;br/&gt;fhem(&quot;deletereading $name next&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name now&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_tage&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_days&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_wochentag&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_weekday&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_text&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_datum&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_date&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_location&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_description&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name .*_uid&quot;, 1);&lt;br/&gt;fhem(&quot;deletereading $name state&quot;, 1);"/>
     </Action>
     <Action uId="150419700844482">
       <Title language="German" value="clean pickup readings"/>
