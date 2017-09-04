@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.03 at 22:53:01 CEST" saveUser="constantin">
+<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.05 at 00:40:10 CEST" saveUser="constantin">
   <Conditions>
     <Condition uId="1504126444840415">
       <Title language="German" value="step"/>
@@ -52,8 +52,16 @@
       <SourceCode codeLanguage="Perl" sourceCodeType="Prolog" value="my @SplitDt = split(/ /,$starts[$startTimeIndex - 1]);&lt;br/&gt;my @SplitDate = split(/\./,$SplitDt[0]);&lt;br/&gt;my @SplitTime = split(/\:/,$SplitDt[1]);&lt;br/&gt;my $eventDate = timelocal($SplitTime[2],$SplitTime[1],$SplitTime[0],$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);&lt;br/&gt;my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;"/>
       <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$dayDiff &lt; 0"/>
     </Condition>
+    <Condition uId="1504563260773217">
+      <Title language="German" value="is filter defined"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="AttrVal($name, &quot;filter&quot;, &quot;&quot;) ne &quot;&quot;"/>
+    </Condition>
+    <Condition uId="1504563276109219">
+      <Title language="German" value="filter type = include"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="AttrVal($name,&quot;filter_type&quot;,&quot;include&quot;) eq &quot;include&quot;"/>
+    </Condition>
     <Condition uId="15042145990504271">
-      <Title language="German" value="skip event"/>
+      <Title language="German" value="match filter"/>
       <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$$dtname_skipEvent($hash,$summarys[$startTimeIndex - 1])"/>
     </Condition>
     <Condition uId="15042154384015485">
@@ -152,7 +160,7 @@
       </ActionOccurrences>
     </Action>
   </Actions>
-  <Rules lastId="33">
+  <Rules lastId="42">
     <Rule id="7">
       <ConditionLink link="11446800829457960" conditionState="true"/>
       <ActionLink link="11446800828767967"/>
@@ -197,28 +205,81 @@
       <ConditionLink link="15042134721243612" conditionState="true"/>
       <ActionOccurrenceLink link="15042118616241787"/>
     </Rule>
-    <Rule id="31">
+    <Rule id="34">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="true"/>
+      <ConditionLink link="15042145990504271" conditionState="true"/>
+      <ConditionLink link="15042154384015485" conditionState="true"/>
+      <ActionLink link="15042154804215497"/>
+    </Rule>
+    <Rule id="35">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="true"/>
+      <ConditionLink link="15042145990504271" conditionState="true"/>
+      <ConditionLink link="15042154384015485" conditionState="false"/>
+    </Rule>
+    <Rule id="36">
       <ConditionOccurrenceLink link="15042131247763480"/>
       <ConditionLink link="15042131718143604" conditionState="true"/>
       <ConditionLink link="15042134721243612" conditionState="false"/>
       <ActionOccurrenceLink link="15042118616241787"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="true"/>
+      <ConditionLink link="15042145990504271" conditionState="false"/>
+    </Rule>
+    <Rule id="37">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042118616241787"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="false"/>
       <ConditionLink link="15042145990504271" conditionState="true"/>
     </Rule>
-    <Rule id="25">
+    <Rule id="38">
       <ConditionOccurrenceLink link="15042131247763480"/>
       <ConditionLink link="15042131718143604" conditionState="true"/>
       <ConditionLink link="15042134721243612" conditionState="false"/>
       <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="false"/>
       <ConditionLink link="15042145990504271" conditionState="false"/>
       <ConditionLink link="15042154384015485" conditionState="true"/>
       <ActionLink link="15042154804215497"/>
     </Rule>
-    <Rule id="26">
+    <Rule id="39">
       <ConditionOccurrenceLink link="15042131247763480"/>
       <ConditionLink link="15042131718143604" conditionState="true"/>
       <ConditionLink link="15042134721243612" conditionState="false"/>
       <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="false"/>
       <ConditionLink link="15042145990504271" conditionState="false"/>
+      <ConditionLink link="15042154384015485" conditionState="false"/>
+    </Rule>
+    <Rule id="41">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="false"/>
+      <ConditionLink link="15042154384015485" conditionState="true"/>
+      <ActionLink link="15042154804215497"/>
+    </Rule>
+    <Rule id="42">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="false"/>
       <ConditionLink link="15042154384015485" conditionState="false"/>
     </Rule>
     <Rule id="21">

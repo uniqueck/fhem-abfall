@@ -29,7 +29,7 @@ sub ABFALL_Initialize($)
 		."delimiter_text_reading "
 		."delimiter_reading "
 		."filter "
-		."exclude_filter "
+		."filter_type:include,exclude "
 		."enable_counting_pickups:0,1 "
 		."enable_old_readingnames:0,1 "
 		."date_style:date,dateTime "
@@ -206,10 +206,10 @@ sub ABFALL_Notify($$)
 			delimiter for join events on same day for readings now_text and next_text<br>
 		<li><b>delimiter_reading </b></li>
 			delimiter for join reading name on readings now and next<br>
-		<li><b>filter </b></li>
-			filter to skip events, possible values regex or string with event name parts<br>
-		<li><b>exclude_filter</b></li>
-			filter to keep events, possible values are regex or string with event name parts<br>
+		<li><b>filter</b></li>
+			filter to skip or keep events, possible values regex or string with event name parts<br>
+		<li><b>filter_type</b></li>
+			skip events or keep events with filter, default value is include this mean keep<br>
 	</ul>
 =end html
 
