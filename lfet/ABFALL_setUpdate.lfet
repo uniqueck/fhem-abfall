@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.04 at 11:31:58 CEST" saveUser="constantin">
+<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.04 at 23:22:46 CEST" saveUser="constantin">
   <Conditions>
     <Condition uId="1504126444840415">
       <Title language="German" value="step"/>
@@ -123,7 +123,7 @@
     </Action>
     <Action uId="15044679217015636">
       <Title language="German" value="set as reading"/>
-      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="my $enable_old_readingnames = AttrVal($name, &quot;enable_old_readingnames&quot;, &quot;0&quot;);&lt;br/&gt;my $readingTermin = $actualEvent-&gt;{readingName}; &lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_tage&quot;, $actualEvent-&gt;{days}) if ($enable_old_readingnames);&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_days&quot;, $actualEvent-&gt;{days});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_text&quot;, $actualEvent-&gt;{summary});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_datum&quot;, $actualEvent-&gt;{dateFormatted}) if ($enable_old_readingnames);&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_date&quot;, $actualEvent-&gt;{dateFormatted});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_wochentag&quot;, $actualEvent-&gt;{weekday}) if ($enable_old_readingnames);&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_weekday&quot;, $actualEvent-&gt;{weekday});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_location&quot;, $actualEvent-&gt;{location});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_description&quot;, $actualEvent-&gt;{description});"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="my $enable_old_readingnames = AttrVal($name, &quot;enable_old_readingnames&quot;, &quot;0&quot;);&lt;br/&gt;my $readingTermin = $actualEvent-&gt;{readingName}; &lt;br/&gt;&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_days&quot;, $actualEvent-&gt;{days});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_text&quot;, $actualEvent-&gt;{summary});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_date&quot;, $actualEvent-&gt;{dateFormatted});&lt;br/&gt;&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_weekday&quot;, $actualEvent-&gt;{weekday});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_location&quot;, $actualEvent-&gt;{location});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_description&quot;, $actualEvent-&gt;{description});&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_uid&quot;, $actualEvent-&gt;{uid});&lt;br/&gt;&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_tage&quot;, $actualEvent-&gt;{days}) if ($enable_old_readingnames);&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_wochentag&quot;, $actualEvent-&gt;{weekday}) if ($enable_old_readingnames);&lt;br/&gt;readingsBulkUpdate($hash, $readingTermin .&quot;_datum&quot;, $actualEvent-&gt;{dateFormatted}) if ($enable_old_readingnames);&lt;br/&gt;"/>
     </Action>
     <Action uId="150447327529411618">
       <Title language="German" value="set now reading"/>

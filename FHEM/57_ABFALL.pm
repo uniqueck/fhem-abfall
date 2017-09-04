@@ -45,7 +45,7 @@ sub ABFALL_Define($$){
 
 	foreach my $calender (@calendars)
 	{
-		return "invalid Calendername \"$calender\", define it first" if((devspec2array("NAME=$calender")) != 1 );
+		return "invalid calendername \"$calender\", define it first" if((devspec2array("NAME=$calender")) != 1 );
 	}
 	$hash->{KALENDER} 	= $a[2];
   $hash->{NOTIFYDEV}	= $a[2];
