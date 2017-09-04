@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.03 at 23:40:00 CEST" saveUser="constantin">
+<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.04 at 11:31:58 CEST" saveUser="constantin">
   <Conditions>
     <Condition uId="1504126444840415">
       <Title language="German" value="step"/>
@@ -47,6 +47,10 @@
     <Condition uId="15044727559239231">
       <Title language="German" value="reading pickups used initialized"/>
       <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="ReadingsVal($name, $actualEvent-&gt;{readingName} . &quot;_pickups_used&quot;, &quot;-1&quot;) &gt; -1"/>
+    </Condition>
+    <Condition uId="1504517393620311">
+      <Title language="German" value="has events"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="scalar(@events) &gt; 0"/>
     </Condition>
     <Condition uId="15044572584432963">
       <Title language="German" value="has more events"/>
@@ -101,14 +105,6 @@
         <Url title="load events" url="file:///./ABFALL_getEvents.lfet"/>
       </UrlsOut>
     </Action>
-    <Action uId="15044569386652684">
-      <Title language="German" value="readingsBeginUpdate"/>
-      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsBeginUpdate($hash);"/>
-    </Action>
-    <Action uId="15044569776202689">
-      <Title language="German" value="readingsEndUpdate"/>
-      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsEndUpdate($hash,1); #end update"/>
-    </Action>
     <Action uId="15044573427063179">
       <Title language="German" value="next event"/>
       <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$actualEvent = $events[$eventIndex];&lt;br/&gt;$eventIndex++;"/>
@@ -161,6 +157,14 @@
       <Title language="German" value="warn empty readingname"/>
       <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="Log3 $name, 2, &quot;$$dtname($name) - readingName is empty for uid($actualEvent-&gt;{uid})&quot;;"/>
     </Action>
+    <Action uId="15044569386652684">
+      <Title language="German" value="readingsBeginUpdate"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsBeginUpdate($hash);"/>
+    </Action>
+    <Action uId="15044569776202689">
+      <Title language="German" value="readingsEndUpdate"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="readingsEndUpdate($hash,1); #end update"/>
+    </Action>
     <Action uId="1504126438918413">
       <Title language="German" value="step"/>
       <ActionOccurrences>
@@ -197,7 +201,7 @@
       </ActionOccurrences>
     </Action>
   </Actions>
-  <Rules lastId="94">
+  <Rules lastId="98">
     <Rule id="39">
       <ActionLink link="11446800828767967"/>
       <ConditionOccurrenceLink link="1504126505502473"/>
@@ -215,16 +219,25 @@
       <ActionLink link="15044565177332275"/>
       <ActionLink link="15044569386652684"/>
     </Rule>
-    <Rule id="56">
+    <Rule id="95">
       <ConditionOccurrenceLink link="1504126505502475"/>
       <ActionOccurrenceLink link="15044579983723821"/>
       <ConditionLink link="15044572584432963" conditionState="true"/>
       <ActionLink link="15044573427063179"/>
+      <ConditionLink link="1504517393620311" conditionState="true"/>
     </Rule>
-    <Rule id="43">
+    <Rule id="96">
       <ConditionOccurrenceLink link="1504126505502475"/>
       <ActionOccurrenceLink link="1504126582566572"/>
       <ConditionLink link="15044572584432963" conditionState="false"/>
+      <ActionLink link="15044569776202689"/>
+      <ConditionLink link="1504517393620311" conditionState="true"/>
+    </Rule>
+    <Rule id="98">
+      <ConditionOccurrenceLink link="1504126505502475"/>
+      <ActionOccurrenceLink link="1504126582566572"/>
+      <ConditionLink link="1504517393620311" conditionState="false"/>
+      <ActionLink link="150447384566613999"/>
       <ActionLink link="15044569776202689"/>
     </Rule>
     <Rule id="89">
