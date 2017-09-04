@@ -1,3 +1,7 @@
 FHEM ABFALL and more last change:
-2017-09-04
- - add new reading *_uid for every event
+2017-09-05
+ - changed attribute exclude_filter to filter_type
+
+add clean *_uid readings
+
+add new attribute exclude_filter and add documentation
