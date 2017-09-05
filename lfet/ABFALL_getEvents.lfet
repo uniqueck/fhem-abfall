@@ -115,7 +115,7 @@
     </Action>
     <Action uId="15042154804215497">
       <Title language="German" value="clean summary with regex"/>
-      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$summarys[$startTimeIndex] =~ s/$cleanReadingRegex//g;"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$summarys[$startTimeIndex-1] =~ s/$cleanReadingRegex//g;"/>
     </Action>
     <Action uId="15042158982006097">
       <Title language="German" value="put new event"/>
