@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="lfet.xsl"?>
 
 <LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.05 at 00:40:10 CEST" saveUser="constantin">
   <Conditions>
