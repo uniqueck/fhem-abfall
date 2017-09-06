@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="https://raw.githubusercontent.com/uniqueck/fhem-abfall/develop/lfet/lfet.xsl"?>
 
-<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.05 at 00:40:10 CEST" saveUser="constantin">
+<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.06 at 23:49:46 CEST" saveUser="constantin">
   <Conditions>
     <Condition uId="1504126444840415">
       <Title language="German" value="step"/>
@@ -72,7 +71,7 @@
     <Condition uId="15042156532625862">
       <Title language="German" value="is event with summary present"/>
       <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$foundItem"/>
-      <SourceCode codeLanguage="Perl" sourceCodeType="Prolog" value="$foundItem = ();&lt;br/&gt;foreach my $item (@terminliste ){&lt;br/&gt;&amp;#009;my $tempText= $item-&gt;{summary};&lt;br/&gt;&amp;#009;my $tempCalName= $item-&gt;{calendar};&lt;br/&gt;&amp;#009;if ($tempText eq $summarys[$startTimeIndex - 1] &amp;&amp; $tempCalName eq $calendername) {&lt;br/&gt;&amp;#009;&amp;#009;$foundItem = $item;&lt;br/&gt;&amp;#009;}&lt;br/&gt;&amp;#009;last if ($foundItem);&lt;br/&gt;}"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="Prolog" value="$foundItem = ();&lt;br/&gt;foreach my $item (@terminliste ){&lt;br/&gt;&amp;#009;my $tempText= $item-&gt;{summary};&lt;br/&gt;&amp;#009;my $tempCalName= $item-&gt;{calendar};&lt;br/&gt;&amp;#009;my $actualText = $summarys[$startTimeIndex - 1];&lt;br/&gt;&amp;#009;$actualText =~ s/\\,/,/g;&lt;br/&gt;&amp;#009;if ($tempText eq $actualText &amp;&amp; $tempCalName eq $calendername) {&lt;br/&gt;&amp;#009;&amp;#009;$foundItem = $item;&lt;br/&gt;&amp;#009;}&lt;br/&gt;&amp;#009;last if ($foundItem);&lt;br/&gt;}"/>
     </Condition>
     <Condition uId="150421831163010877">
       <Title language="German" value="is event start newer than founded event"/>
