@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.06 at 23:49:46 CEST" saveUser="constantin">
+<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.08 at 13:21:39 CEST" saveUser="constantin">
   <Conditions>
     <Condition uId="1504126444840415">
       <Title language="German" value="step"/>
@@ -124,6 +124,10 @@
       <Title language="German" value="update existing event"/>
       <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="my $eventLocation = &quot;&quot;;&lt;br/&gt;if (defined($locations[$startTimeIndex - 1])) {&lt;br/&gt;&amp;#009;$eventLocation = $locations[$startTimeIndex - 1];&lt;br/&gt;}&lt;br/&gt;my $eventDescription = &quot;&quot;;&lt;br/&gt;if (defined($descriptions[$startTimeIndex - 1])) {&lt;br/&gt;&amp;#009;$eventDescription = $descriptions[$startTimeIndex - 1];&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;my @SplitDt = split(/ /,$starts[$startTimeIndex - 1]);&lt;br/&gt;my @SplitDate = split(/\./,$SplitDt[0]);&lt;br/&gt;my @SplitTime = split(/\:/,$SplitDt[1]);&lt;br/&gt;my $eventDate = timelocal($SplitTime[2],$SplitTime[1],$SplitTime[0],$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);&lt;br/&gt;my $eventDateFormatted = $SplitDt[0];&lt;br/&gt;&lt;br/&gt;if ($date_style eq &quot;dateTime&quot;) {&lt;br/&gt;&amp;#009;$eventDateFormatted = $SplitDt[0] . &quot; &quot; . $SplitDt[1];&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);&lt;br/&gt;&lt;br/&gt;my $weekday = (localtime($eventDate))[6];&lt;br/&gt;my $wdayname = $days[$weekday];&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;$foundItem-&gt;{uid} = $uid;&lt;br/&gt;$foundItem-&gt;{start} = $starts[$startTimeIndex - 1];&lt;br/&gt;$foundItem-&gt;{weekday} = $wdayname;&lt;br/&gt;$foundItem-&gt;{location} = $eventLocation;&lt;br/&gt;$foundItem-&gt;{description} = $eventDescription;&lt;br/&gt;$foundItem-&gt;{date} = $eventDate;&lt;br/&gt;$foundItem-&gt;{dateFormatted} = $eventDateFormatted;&lt;br/&gt;$foundItem-&gt;{days} = $dayDiff;"/>
     </Action>
+    <Action uId="1504868875676273">
+      <Title language="German" value="sort list of events"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="Log3 $name, 5, &quot;Vor Sortieren&quot;;&lt;br/&gt;foreach my $a (@terminliste) {&lt;br/&gt;&amp;#009;Log3 $name, 5, $a-&gt;{readingName};&lt;br/&gt;}&lt;br/&gt;@terminliste = sort {$a-&gt;{readingName} cmp $b-&gt;{readingName}} @terminliste;&lt;br/&gt;Log3 $name, 5, &quot;Nach Sortieren&quot;;&lt;br/&gt;foreach my $a (@terminliste) {&lt;br/&gt;&amp;#009;Log3 $name, 5, $a-&gt;{readingName};&lt;br/&gt;}"/>
+    </Action>
     <Action uId="1504126438918413">
       <Title language="German" value="step"/>
       <ActionOccurrences>
@@ -160,7 +164,7 @@
       </ActionOccurrences>
     </Action>
   </Actions>
-  <Rules lastId="42">
+  <Rules lastId="43">
     <Rule id="7">
       <ConditionLink link="11446800829457960" conditionState="true"/>
       <ActionLink link="11446800828767967"/>
@@ -168,10 +172,11 @@
       <ConditionOccurrenceLink link="1504126505502473"/>
       <ActionOccurrenceLink link="1504126582786580"/>
     </Rule>
-    <Rule id="8">
+    <Rule id="43">
       <ConditionLink link="11446800829457960" conditionState="false"/>
       <ConditionOccurrenceLink link="1504126505502473"/>
       <ActionOccurrenceLink link="1504126582566572"/>
+      <ActionLink link="1504868875676273"/>
     </Rule>
     <Rule id="14">
       <ConditionOccurrenceLink link="1504126505502475"/>
