@@ -1,3 +1,12 @@
 FHEM ABFALL and more last change:
-2017-09-07
- - fixed an error with now reading reported from trinitywhm
+2017-09-09
+ - Merge branch 'feature/automated-testing' into develop
+
+added tests for readings based events and for next reading
+
+fixed test
+
+add new action to sort array of events
+correct sort comparator
+
+try shunit2 for automated testing
