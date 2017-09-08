@@ -152,16 +152,72 @@ testNextReadings() {
 		assertReading "TerminMontag_1" "$abfallName" "next"
 		;;
 	esac;
+	unset actualWeekday
+}
 
-
-	local readingName="TerminFreitag"
-	assertReading "Termin Freitag" "$abfallName" "${readingName}_text"
-	assertReading "Ort Termin Freitag" "$abfallName" "${readingName}_location"
-	assertReading "Beschreibung Termin Freitag" "$abfallName" "${readingName}_description"
-	assertReading "$(getExpectedReadingDateForWeekday friday)" "$abfallName" "${readingName}_date"
-	assertReading "Freitag" "$abfallName" "${readingName}_weekday"
-	assertReading "6c83vdpb6ic458o9t1bt3shc39googlecom" "$abfallName" "${readingName}_uid"
-	unset readingName
+testNowReadings() {
+	# sleep 5
+	local actualWeekday=$(date +"%u")
+	local actualDate=$(date -d now +"%d.%m.%Y")
+	case "$actualWeekday" in
+		1)
+		assertReading "Termin Montag" "$abfallName" "now_text"
+		assertReading "Ort Termin Montag" "$abfallName" "now_location"
+		assertReading "Beschreibung Termin Montag" "$abfallName" "now_description"
+		assertReading "$actualDate" "$abfallName" "now_date"
+		assertReading "Montag" "$abfallName" "now_weekday"
+		assertReading "TerminMontag" "$abfallName" "now"
+		;;
+		2)
+		assertReading "Termin Dienstag" "$abfallName" "now_text"
+		assertReading "Ort Termin Dienstag" "$abfallName" "now_location"
+		assertReading "Beschreibung Termin Dienstag" "$abfallName" "now_description"
+		assertReading "$actualDate" "$abfallName" "now_date"
+		assertReading "Dienstag" "$abfallName" "now_weekday"
+		assertReading "TerminDienstag" "$abfallName" "now"
+		;;
+		3)
+		assertReading "Termin Mittwoch" "$abfallName" "now_text"
+		assertReading "Ort Termin Mittwoch" "$abfallName" "now_location"
+		assertReading "Beschreibung Termin Mittwoch" "$abfallName" "now_description"
+		assertReading "$actualDate" "$abfallName" "now_date"
+		assertReading "Mittwoch" "$abfallName" "now_weekday"
+		assertReading "TerminMittwoch_1" "$abfallName" "now"
+		;;
+		4)
+		assertReading "Termin Donnerstag" "$abfallName" "now_text"
+		assertReading "Ort Termin Donnerstag" "$abfallName" "now_location"
+		assertReading "Beschreibung Termin Donnerstag" "$abfallName" "now_description"
+		assertReading "$actualDate" "$abfallName" "now_date"
+		assertReading "Donnerstag" "$abfallName" "now_weekday"
+		assertReading "TerminDonnerstag" "$abfallName" "now"
+		;;
+		5)
+		assertReading "Termin Freitag" "$abfallName" "now_text"
+		assertReading "Ort Termin Freitag" "$abfallName" "now_location"
+		assertReading "Beschreibung Termin Freitag" "$abfallName" "now_description"
+		assertReading "$actualDate" "$abfallName" "now_date"
+		assertReading "Freitag" "$abfallName" "now_weekday"
+		assertReading "TerminFreitag" "$abfallName" "now"
+		;;
+		6)
+		assertNoReading "$abfallName" "now_text"
+		assertNoReading "$abfallName" "now_location"
+		assertNoReading "$abfallName" "now_description"
+		assertNoReading "$actualDate" "$abfallName" "now_date"
+		assertNoReading "$abfallName" "now_weekday"
+		assertNoReading "$abfallName" "now"
+		;;
+		7)
+		assertNoReading "$abfallName" "now_text"
+		assertNoReading "$abfallName" "now_location"
+		assertNoReading "$abfallName" "now_description"
+		assertNoReading "$abfallName" "now_date"
+		assertNoReading "$abfallName" "now_weekday"
+		assertNoReading "$abfallName" "now"
+		;;
+	esac;
+	unset actualWeekday
 }
 
 
@@ -195,6 +251,11 @@ assertReading() {
 	# local reading=$2
 	local actualVal=$(executeFHEMCommand "{ReadingsVal('$2','$3','invalid')}")
 	assertEquals "$expectedValue" "$actualVal"
+}
+
+assertNoReading() {
+	local actualVal=$(executeFHEMCommand "{ReadingsVal('$1','$2','invalid')}")
+	assertEquals "invalid" "$actualVal"
 }
 
 
