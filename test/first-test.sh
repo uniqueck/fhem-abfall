@@ -13,7 +13,7 @@ testEquality() {
 	# sleep 5
 	# executeFHEMCommand "list AbfallTrinitywhm"
 	assertEquals 1 1
-	assertReading "Mülleimer rausbringen und Boden saugen und Staub wischen" "AbfallTrinitywhm" "next_text"
+	assertReading "Boden saugen und Mülleimer rausbringen und Staub wischen" "AbfallTrinitywhm" "next_text"
 }
 
 assertReading() {
