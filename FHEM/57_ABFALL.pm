@@ -1,4 +1,4 @@
-# $Id: 57_ABFALL.pm 11019 2017-07-26 23:07:00Z uniqueck $
+# $Id: 57_ABFALL.pm 11020 2017-09-13 00:40:21Z uniqueck $
 ###########################
 #	ABFALL
 #
@@ -11,6 +11,7 @@ use warnings;
 use POSIX;
 use Time::Local;
 use Time::Piece;
+use ABFALL_setUpdate;
 
 sub ABFALL_Initialize($)
 {
@@ -28,8 +29,10 @@ sub ABFALL_Initialize($)
 		."delimiter_text_reading "
 		."delimiter_reading "
 		."filter "
+		."filter_type:include,exclude "
 		."enable_counting_pickups:0,1 "
 		."enable_old_readingnames:0,1 "
+		."date_style:date,dateTime "
 		.$readingFnAttributes;
 }
 
@@ -43,7 +46,7 @@ sub ABFALL_Define($$){
 
 	foreach my $calender (@calendars)
 	{
-		return "invalid Calendername \"$calender\", define it first" if((devspec2array("NAME=$calender")) != 1 );
+		return "invalid calendername \"$calender\", define it first" if((devspec2array("NAME=$calender")) != 1 );
 	}
 	$hash->{KALENDER} 	= $a[2];
   $hash->{NOTIFYDEV}	= $a[2];
@@ -63,8 +66,10 @@ sub ABFALL_Define($$){
 		$attr{$name}{"delimiter_text_reading"} = " und ";
 		# set default delimiter_reading
 		$attr{$name}{"delimiter_reading"} = "|";
+		# set default date_style
+		$attr{$name}{"date_style"} = "date";
 	}
-	InternalTimer(gettimeofday()+2, "ABFALL_GetUpdate", $hash, 0);
+	InternalTimer(gettimeofday()+2, "ABFALL_setUpdate", $hash, 0);
 	return undef;
 }
 
@@ -84,7 +89,7 @@ sub ABFALL_Set($@){
 	$list .= " clear:noArg count" if(AttrVal($name, "enable_counting_pickups","0"));
 
 	if ($cmd eq "update") {
-		ABFALL_GetUpdate($hash);
+		ABFALL_setUpdate($hash);
 	} elsif ($cmd eq "count") {
 		$result = ABFALL_Count($hash, $arg);
 	} elsif ($cmd eq "clear") {
@@ -118,194 +123,6 @@ sub ABFALL_Count($$){
 	return $result;
 }
 
-sub ABFALL_GetUpdate($){
-	my ($hash) = @_;
-	my $name = $hash->{NAME};
-	Log3 $name, 3, "ABFALL_UPDATE";
-
-	my $enable_counting_pickups = AttrVal($name, "enable_counting_pickups", "0");
-	my $enable_old_readingnames = AttrVal($name, "enable_old_readingnames", "0");
-
-	my $lastNow = ReadingsVal($name, "now", "");
-	Log3 $name, 5, "ABFALL_GetUpdate ($name) - reading lastNow $lastNow";
-
-	Log3 $name, 5, "ABFALL_GetUpdate ($name) - delete readings";
-	fhem("deletereading $name next", 1);
-	fhem("deletereading $name now", 1);
-	fhem("deletereading $name .*_tage", 1);
-	fhem("deletereading $name .*_days", 1);
-	fhem("deletereading $name .*_wochentag", 1);
-	fhem("deletereading $name .*_weekday", 1);
-	fhem("deletereading $name .*_text", 1);
-	fhem("deletereading $name .*_datum", 1);
-	fhem("deletereading $name .*_date", 1);
-	fhem("deletereading $name .*_location", 1);
-	fhem("deletereading $name .*_description", 1);
-	fhem("deletereading $name state", 1);
-
-
-	fhem("deletereading $name .*_pickups", 1) if (!$enable_counting_pickups);
-	fhem("deletereading $name .*_pickups_used", 1) if (!$enable_counting_pickups);
-	fhem("deletereading $name .*_abholungen", 1) if (!$enable_counting_pickups);
-	fhem("deletereading $name .*_abholungen_genutzt", 1) if (!$enable_counting_pickups);
-
-	Log3 $name, 5, "ABFALL_GetUpdate ($name) - readings deleted";
-
-
-	my $counter = 1;
-	my $samedatecounter = 2;
-	my $lastterm;
-	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-	$year += 1900; $mon += 1;
-	my $date = sprintf('%02d.%02d.%04d', $mday, $mon, $year);
-	($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time + 86400);
-	$year += 1900; $mon += 1;
-	my $datenext = sprintf('%02d.%02d.%04d', $mday, $mon, $year);
-
-	my $delimiter_text_reading = AttrVal($name,"delimiter_text_reading"," und ");
-	my $delimiter_reading = AttrVal($name,"delimiter_reading","|");
-
-	my $nowAbfall_tage = -1;
-	my $nowAbfall_text = "";
-	my $nowAbfall_location = "";
-	my $nowAbfall_description = "";
-	my $nowAbfall_datum;
-	my $nowAbfall_weekday;
-	my $now_readingTermin = "";
-
-
-	my $nextAbfall_tage = -1;
-	my $nextAbfall_text = "";
-	my $nextAbfall_location = "";
-	my $nextAbfall_description = "";
-	my $nextAbfall_datum;
-	my $nextAbfall_weekday;
-	my $next_readingTermin = "";
-
-
-	readingsBeginUpdate($hash); #start update
-	my @events =  getEvents($hash);
-
-	foreach my $event (@events) {
-		my $readingTermin = $event->{readingName};
-		Log3 $name, 5, "ABFALL_GetUpdate ($name) - $readingTermin";
-
-		if ($event->{days} == 0) {
-			if($nowAbfall_text eq "") {
-				$nowAbfall_text = $event->{summary};
-			} else {
-				$nowAbfall_text .= $delimiter_text_reading . $event->{summary};
-			}
-			# check if location reading is the same
-			if($nowAbfall_location eq "") {
-				$nowAbfall_location = $event->{location};
-			} elsif ($nowAbfall_location ne $event->{location}) {
-				# TODO change check to regex expression contains
-				$nowAbfall_location .= $delimiter_text_reading . $event->{location};
-			}
-			# check if description reading is the same
-			if($nowAbfall_description eq "") {
-				$nowAbfall_description = $event->{description};
-			} elsif ($nowAbfall_description ne $event->{description}) {
-				# TODO change check to regex expression contains
-				$nowAbfall_description .= $delimiter_text_reading . $event->{description};
-			}
-			$nowAbfall_tage = $event->{days};
-			$nowAbfall_datum = $event->{start};
-			$nowAbfall_weekday = $event->{weekday};
-			$now_readingTermin = $readingTermin;
-		} elsif	($nextAbfall_tage == -1 || $nextAbfall_tage > $event->{days} || $nextAbfall_tage == $event->{days} ) {
-			if ($nextAbfall_text eq "") {
-				$nextAbfall_text = $event->{summary};
-			} else {
-				$nextAbfall_text .= $delimiter_text_reading . $event->{summary};
-			}
-			# check if location reading is the same
-			if ($nextAbfall_location eq "") {
-				$nextAbfall_location = $event->{location};
-			} else {
-				# TODO check if nextAbfall_location contains $event->{location}
-				$nextAbfall_location .= $delimiter_text_reading . $event->{location};
-			}
-			# check if description reading is the same
-			if ($nextAbfall_description eq "") {
-				$nextAbfall_description = $event->{description};
-			} else {
-				# TODO check if nextAbfall_location contains $event->{location}
-				$nextAbfall_description .= $delimiter_text_reading . $event->{description};
-			}
-			$nextAbfall_tage = $event->{days};
-			$nextAbfall_datum = $event->{start};
-			$nextAbfall_weekday = $event->{weekday};
-			if ($next_readingTermin eq "") {
-				$next_readingTermin = $readingTermin;
-			} else {
-				$next_readingTermin .= $delimiter_reading . $readingTermin;
-			}
-		}
-
-		if ($enable_counting_pickups) {
-			my $readingTermin_pickup_count = ReadingsVal($name, $readingTermin . "_pickups", "-1");
-			my $readingTermin_pickup_used = ReadingsVal($name, $readingTermin . "_pickups_used", "-1");
-
-			readingsBulkUpdate($hash, $readingTermin ."_pickups", "0") if ($readingTermin_pickup_count == -1);
-			readingsBulkUpdate($hash, $readingTermin ."_pickups_used", "0") if ($readingTermin_pickup_used == -1);
-		}
-
-
-		readingsBulkUpdate($hash, $readingTermin ."_tage", $event->{days}) if ($enable_old_readingnames);
-		readingsBulkUpdate($hash, $readingTermin ."_days", $event->{days});
-		readingsBulkUpdate($hash, $readingTermin ."_text", $event->{summary});
-		readingsBulkUpdate($hash, $readingTermin ."_datum", $event->{start}) if ($enable_old_readingnames);
-		readingsBulkUpdate($hash, $readingTermin ."_date", $event->{start});
-		readingsBulkUpdate($hash, $readingTermin ."_wochentag", $event->{weekday}) if ($enable_old_readingnames);
-		readingsBulkUpdate($hash, $readingTermin ."_weekday", $event->{weekday});
-		readingsBulkUpdate($hash, $readingTermin ."_location", $event->{location});
-		readingsBulkUpdate($hash, $readingTermin ."_description", $event->{description});
-
-	} # end for events
-
-	if ($nowAbfall_tage == 0) {
-		readingsBulkUpdate($hash, "now", $now_readingTermin);
-		readingsBulkUpdate($hash, "now_text", $nowAbfall_text);
-		readingsBulkUpdate($hash, "now_datum", $nowAbfall_datum) if ($enable_old_readingnames);
-		readingsBulkUpdate($hash, "now_date", $nowAbfall_datum);
-		readingsBulkUpdate($hash, "now_wochentag", $nowAbfall_weekday) if ($enable_old_readingnames);
-		readingsBulkUpdate($hash, "now_weekday", $nowAbfall_weekday);
-		readingsBulkUpdate($hash, "now_location", $nowAbfall_location);
-		readingsBulkUpdate($hash, "now_description", $nowAbfall_description);
-
-		if ($lastNow ne $now_readingTermin && $enable_counting_pickups) {
-			# FIXME if more than one pickup today, split readingTermin with delimiter_text_reading
-			Log3 $name, 4, "ABFALL_Update ($name) - inc count for pickups for $now_readingTermin";
-			my $now_readingTermin_count =  ReadingsVal($hash, $now_readingTermin . "_pickups", "0");
-			$now_readingTermin_count = $now_readingTermin_count + 1;
-			readingsBulkUpdate($hash, $now_readingTermin . "_pickups", $now_readingTermin_count);
-		}
-	}
-
-	if ($nextAbfall_tage > -1) {
-		if ($next_readingTermin ne "") {
-			 $next_readingTermin .= "_" .  $nextAbfall_tage
-		}
-		readingsBulkUpdate($hash, "next", $next_readingTermin);
-		readingsBulkUpdate($hash, "next_tage", $nextAbfall_tage) if ($enable_old_readingnames);
-		readingsBulkUpdate($hash, "next_days", $nextAbfall_tage);
-		readingsBulkUpdate($hash, "next_text", $nextAbfall_text);
-		readingsBulkUpdate($hash, "next_datum", $nextAbfall_datum) if ($enable_old_readingnames);
-		readingsBulkUpdate($hash, "next_date", $nextAbfall_datum);
-		readingsBulkUpdate($hash, "next_wochentag", $nextAbfall_weekday) if ($enable_old_readingnames);
-		readingsBulkUpdate($hash, "next_weekday", $nextAbfall_weekday);
-		readingsBulkUpdate($hash, "next_location", $nextAbfall_location);
-		readingsBulkUpdate($hash, "next_description", $nextAbfall_description);
-
-		readingsBulkUpdate($hash, "state", $nextAbfall_tage);
-	} else {
-		readingsBulkUpdate($hash, "state", "Keine Abholungen");
-	}
-
-	readingsEndUpdate($hash,1); #end update
-}
 sub ABFALL_Attr(@) {
 	my ($cmd,$name,$attrName,$attrVal) = @_;
 	my $hash = $defs{$name};
@@ -349,164 +166,13 @@ sub ABFALL_Notify($$)
 			foreach my $event (@{$dev_hash->{CHANGED}}) {
 				if ($event eq "triggered") {
 					Log3 $ownName , 3,  "ABFALL $ownName - CALENDAR:$devName triggered, updating ABFALL $ownName ...";
-					ABFALL_GetUpdate($own_hash);
+					ABFALL_setUpdate($own_hash);
 				}
 			}
 		}
   }
   return undef;
 }
-
-
-
-# lese alle Termine von allen Kalendern und gebe sie in einer Liste zurück
-sub getEvents($){
-	my ($hash) = @_;
-	my @terminliste ;
-	my $name = $hash->{NAME};
-	my @calendernamen = split( ",", $hash->{KALENDER});
-
-	my $cleanReadingRegex = AttrVal($name,"abfall_clear_reading_regex","");
-	my $calendarNamePraefix = AttrVal($name,"calendarname_praefix","1");
-
-	my %replacement = ("ä" => "ae", "Ä" => "Ae", "ü" => "ue", "Ü" => "Ue", "ö" => "oe", "Ö" => "Oe", "ß" => "ss" );
-	my $replacementKeys= join ("|", keys(%replacement));
-
-	my $wdMapping = AttrVal($name,"weekday_mapping","Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag");
-	my @days = split("\ ", $wdMapping);
-	Log3 $name, 5,  "getEvents($name) - weekDayMapping ($wdMapping)" ;
-
-
-
-	foreach my $calendername (@calendernamen){
-
-		my $all = CallFn($calendername, "GetFn", $defs{$calendername},(" ","uid", "next"));
-		my @termine=split(/\n/,$all);
-		my $now_time = localtime();
-
-		foreach my $uid (@termine){
-			# get all information for one uid
-			my @starts = split(/\n/,CallFn($calendername, "GetFn", $defs{$calendername},(" ","start", $uid)));
-
-			my @summarys = split(/\n/,CallFn($calendername, "GetFn", $defs{$calendername},(" ","summary", $uid)));
-
-			my @locations = split(/\n/, CallFn($calendername, "GetFn", $defs{$calendername},(" ","location", $uid)));
-
-			my @descriptions = split(/\n/, CallFn($calendername, "GetFn", $defs{$calendername},(" ","description", $uid)));
-
-			# next if (not (scalar(@starts) eq scalar(@summarys) eq scalar(@locations) eq scalar(@descriptions)));
-
-			for(my $i = 0; $i <= scalar(@starts); $i++) {
-
-				Log3 $name, 5, "getEvents($name) -  calendar($calendername) - uid($uid) - start($starts[$i])";
-				next if ($starts[$i] eq '');
-
-				# skip events in the past
-				my @SplitDt = split(/ /,$starts[$i]);
-				my @SplitDate = split(/\./,$SplitDt[0]);
-				my @SplitTime = split(/\:/,$SplitDt[1]);
-				my $eventDate = timelocal($SplitTime[2],$SplitTime[1],$SplitTime[0],$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);
-				my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);
-				next if ($eventDate < $now_time);
-
-				my $eventText = $summarys[$i];
-				# skip events of filter conditions
-				next if (skipEvent($hash, $eventText));
-
-				# cleanup summary of event
-				if ($cleanReadingRegex){
-					$eventText =~ s/$cleanReadingRegex//g;
-				}
-				my $cleanReadingName = $eventText;
-				# should add praefix from calendar
-				if ($calendarNamePraefix) {
-					$cleanReadingName = $calendername . "_" . $cleanReadingName;
-				}
-
-				# prepare reading name from summary of event
-				$cleanReadingName =~ s/($replacementKeys)/$replacement{$1}/eg;
-				$cleanReadingName =~ tr/a-zA-Z0-9\-_//dc;
-
-				Log3 $name, 5, "$SplitDt[0]";
-				my $weekday = (localtime($eventDate))[6];
-				my $wdayname = $days[$weekday];
-
-
-				my $eventLocation = $locations[$i];
-				my $eventDescription = $descriptions[$i];
-
-				Log3 $name, 5,  "getEvents($name) - calendar($calendername) - uid($uid) -start($starts[$i]) - text($eventText) - location($eventLocation) - description($eventDescription)";
-
-
-				my $foundItem = ();
-				foreach my $item (@terminliste ){
-					my $tempText= $item->{summary};
-					my $tempCalName= $item->{calendar};
-					if ($tempText eq $eventText && $tempCalName eq $calendername) {
-						$foundItem = $item;
-					}
-					last if ($foundItem);
-				}
-
-				if ($foundItem) {
-					Log3 $name, 5, "getEvents($name) - calendar($calendername) - " . $foundItem->{summary} . " - allready exists!";
-					if ($eventDate < $foundItem->{date} && $eventDate > time) {
-						Log3 $name, 5, "getEvents($name) - calendar($calendername) - change - " . $foundItem->{start} ." to " . $starts[$i];
-						$foundItem->{uid} = $uid;
-						$foundItem->{start} = $starts[$i];
-						$foundItem->{weekday} = $wdayname;
-						$foundItem->{location} = $eventLocation;
-						$foundItem->{description} = $eventDescription;
-						$foundItem->{date} = $eventDate;
-						$foundItem->{days} = $dayDiff;
-					}
-				} else {
-					$eventText =~ s/\\,/,/g;
-					$cleanReadingName =~ s/\\,/,/g;
-					push @terminliste, {
-						uid => $uid,
-						start => $starts[$i],
-						weekday => $wdayname,
-						summary => $eventText,
-						location => $eventLocation,
-						description => $eventDescription,
-						readingName => $cleanReadingName,
-						date => $eventDate,
-						days => $dayDiff,
-						calendar => $calendername};
-				}
-			}
-		} # end for each uid
-	} # end for each calendar
-	return @terminliste;
-} # end sub getEvents
-
-
-sub skipEvent($@) {
-	my ($hash, @val) = @_;
-	my $event = join(' ', @val);
-	my $name = $hash->{NAME};
-	my $skip = 0;
-	my $filter = AttrVal($name,"filter","");
-
-	if ($filter ne "") {
-		# skip event of filter conditions - start
-		my @filterArray=split( ',' ,$filter);
-		foreach my $eachFilter (@filterArray) {
-			# fix from fhem forum user justme1968 to support regex for filter
-			if ($eachFilter =~ m'^/(.*)/$' && $event =~ m/$1/ ) {
-				$skip = 1;
-			} elsif (index($event, $eachFilter) != -1) {
-				$skip = 1;
-			}
-		} # end foreach
-	} # end if filter
-	# skip event of filter conditions - end
-	Log3 $name, 5, "skipEvent($name) - $event" if ($skip);
-	return $skip;
-} # end skipEvent
-
-
 
 
 1;
@@ -516,67 +182,124 @@ sub skipEvent($@) {
 
 <a name="ABFALL"></a>
 <h3>ABFALL</h3>
-<ul>This module creates a device with deadlines based on a calendar-device of the 57_Calendar.pm module. You need to install the  perl-modul Date::Parse!</ul>
+<ul>
+<br>
+<a name="ABFALLdefine"></a>
 <b>Define</b>
-<ul><code>define &lt;Name&gt; ABFALL &lt;calendarname&gt; &lt;updateintervall in sec (default 43200)&gt;</code></ul><br>
-<ul><code>define myAbfall ABFALL Googlecalendar 3600</code></ul><br>
-<a name="ABFALL set"></a>
+<ul>
+	<code>define &lt;name&gt; ABFALL &lt;calendarname&gt;</code><br>
+	<code>define &lt;name&gt; ABFALL &lt;calendarname&gt;,&lt;additional calendarname&gt;</code><br>
+	<br>
+	Defines a ABFALL device.<br>
+	A ABFALL device creates events with deadlines based on one or more calendar-device (57_Calendar.pm). <br>
+	You need to install the  perl-modul Date::Parse!<br>
+</ul>
+<br>
+<a name="ABFALLset"></a>
 <b>Set</b>
-<ul>update readings:</ul>
-<ul><code>set &lt;Name&gt; update</code></ul>
-<ul><code>set myAbfall update</code></ul><br>
+<ul>
+	<code>set &lt;name&gt; update</code><br>
+	Forces to read all events from the calendar-devices and create / update readings.<br>
+</ul>
+<br>
 <a name="ABFALLattr"></a>
-	<b>Attributes</b><br><br>
-	<ul>
-		<li><a href="#readingFnAttributes">readingFnAttributes</a></li>
-		<br>
-		<li><b>abfall_clear_reading_regex</b></li>
-			regex to remove part of the summary text<br>
-		<li><b>weekday_mapping</b></li>
-			mapping for the days of week<br>
-		<li><b>calendarname_praefix </b></li>
-			add calendar name as praefix for reading<br>
-		<li><b>delimiter_text_reading </b></li>
-			delimiter for join events on same day for readings now_text and next_text<br>
-		<li><b>delimiter_reading </b></li>
-			delimiter for join reading name on readings now and next<br>
-		<li><b>filter </b></li>
-			filter to keep events, possible values regex or string with event name parts<br>
-	</ul>
+<b>Attributes</b>
+<ul>
+	<li><code>abfall_clear_reading_regex</code><br>
+		regex to remove part of the summary text</li><p>
+	<li><code>weekday_mapping</code><br>
+		mapping for the days of week
+	</li><p>
+	<li><code>calendarname_praefix </code><br>
+		add calendar name as praefix for reading</li><p>
+	<li><code>delimiter_text_reading</code><br>
+			delimiter for join events on same day for readings now_text and next_text</li><p>
+	<li><code>delimiter_reading </code><br>
+			delimiter for join reading name on readings now and next</li><p>
+	<li><code>filter</code><br>
+			filter to skip or keep events, possible values regex or string with event name parts</li><p>
+	<li><code>filter_type</code><br>
+			skip events or keep events with filter, default value is include this mean keep</li><p>
+	<li><a href="#readingFnAttributes">readingFnAttributes</a></li>
+</ul>
+<br>
+<b>Examples</b>
+<ul>
+	see <a href="https://wiki.fhem.de/wiki/ABFALL">FHEM Wiki</a>
+<br>
+</ul>
+</ul>
 =end html
 
 =begin html_DE
 
 <a name="ABFALL"></a>
 <h3>ABFALL</h3>
-<ul>Dieses Modul erstellt ein Device welches als Readings Termine eines Kalender, basierend auf dem 57_Calendar.pm Modul, besitzt. Ihr müsst das Perl-Modul Date::Parse installieren!</ul>
-<b>Define</b>
-<ul><code>define &lt;Name&gt; ABFALL &lt;Kalendername&gt; &lt;updateintervall in sek (default 43200)&gt;</code></ul><br>
-<ul><code>define myAbfall ABFALL Googlekalender 3600</code></ul><br>
-<a name="ABFALL set"></a>
-<b>Set</b>
-<ul>update readings:</ul>
-<ul><code>set &lt;Name&gt; update</code></ul>
-<ul><code>set myAbfall update</code></ul><br>
-<a name="ABFALLattr"></a>
-	<b>Attributes</b><br><br>
+<ul>
+	<br>
+	<a name="ABFALLdefine"></a>
+	<b>Define</b>
 	<ul>
-		<li><a href="#readingFnAttributes">readingFnAttributes</a></li>
+		<code>define &lt;name&gt; ABFALL &lt;Kalendername&gt;</code><br>
+		<code>define &lt;name&gt; ABFALL &lt;Kalendername&gt;,&lt;weiterer Kalendername&gt;</code><br>
 		<br>
-		<li><b>abfall_clear_reading_regex</b></li>
-			regulärer Ausdruck zum Entfernt eines Bestandteils des Terminnamens<br>
-		<li><b>weekday_mapping</b></li>
-			Mapping der Wochentag<br>
-		<li><b>calendarname_praefix </b></li>
-			soll der calendar name als Präfix im reading geführt werden<br
-		<li><b>delimiter_text_reading </b></li>
-			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen<br>
-			gilt nur für die Readings next_text und now_text
-		<li><b>delimiter_reading </b></li>
-			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen<br>
-			gilt nur für die readings next und now
-		<li><b>filter </b></li>
-			Zeichenkette zum Filter der Events aus den Kalendern, es sind auch regex möglich<br>
+		Definiert ein Abfall-Device.<br><br>
+		Ein Abfall-Device ermittelt, basierend auf einem oder mehreren Kalender-Devices, Termine und stellt verschiedene 'Readings' hierfür bereit.<br>
+		Das Perl Modul Date::Parse muss installiert sein!<br>
+	</ul>
+	<br>
+	<a name="ABFALLset"></a>
+	<b>Set</b>
+	<ul>
+		<code>set &lt;name&gt; update</code><br>
+		Erzwingt das Auslesen der Kalender-Devices und neuerstellen der Readings.<br><br>
+		<code>set &lt;name&gt; count &lt;abfallArt&gt;</code><br>
+		Steht nur zur Verfügung wenn das Attribut <code>enable_counting_pickups</code> auf 1 steht.<br>
+		Erhöht das Reading <code>&lt;abfallArt&gt;_pickups_used</code> um 1, sofern die <code>AbfallArt</code> als Reading existiert.<br><br>
+		<code>set &lt;name&gt; clear</code><br>
+		Steht nur zur Verfügung wenn das Attribut <code>enable_counting_pickups</code> auf 1 steht.<br>
+		Löscht alle Readings <code>*_pickups_used</code> und <code>*_pickups</code>
+	</ul>
+	<br>
+	<a name="ABFALLattr"></a>
+	<b>Attribute</b>
+	<ul>
+		<li><code>abfall_clear_reading_regex</code><br>
+			regulärer Ausdruck zum Entfernt eines Bestandteils des Terminnamens</li><p>
+		<li><code>weekday_mapping</code><br>
+			Mapping der Wochentag</li><p>
+		<li><code>calendarname_praefix</code><br>
+			soll der <code>calendarname</code> als Präfix im reading geführt werden</li><p>
+		<li><code>delimiter_text_reading</code><br>
+			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen
+			gilt nur für die Readings next_text und now_text</li><p>
+		<li><code>delimiter_reading</code><br>
+			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen
+			gilt nur für die readings next und now</li><p>
+		<li><code>filter</code><br>
+			Zeichenkette zum Ausfiltern der Events aus den Kalendern, es sind auch regex möglich</li><p>
+		<li><code>filter_type</code><br>
+			Sollen durch den angegebene Filter Termine entfernt werden, oder erhalten bleiben</li><p>
+		<li><code>date_style</code><br>
+			Soll das Datum mit Uhrzeit oder ohne Uhrzeit angezeigt werden</li><p>
+		<li><code>enable_old_readingnames</code><br>
+			Stellt die Readings *_wochtag, *_datum und *_tage zur Verfügung, allerdings
+			ist dieses Attribut deprecated, wird also in einer der folgenden Version entfernt, so dass dann diese Readings nur noch
+			mit ihren englischen Varianten zur Verfügung stehen.
+		</li><p>
+		<li><code>enable_counting_pickups</code><br>
+			Hiermit werden die Abholungen gezählt und es kann mit Milfe von <code>set &lt;name&gt; count &lt;abfallArt&gt;</code> die genutzte Abholung
+			gezählt werden. Mit Hilfe von <code>set &lt;name&gt; clear</code> können die Abholungen wieder auf 0 gesetzt werden. Das ist sinnvoll bei Wechsel
+			eines Abrechnungszeitraum.
+		</li><p>
+		<li><a href="#readingFnAttributes">readingFnAttributes</a></li>
+	</ul>
+	<br>
+	<b>Anwendungsbeispiele</b>
+	<ul>
+		siehe h<a href="https://wiki.fhem.de/wiki/ABFALL">FHEM Wiki</a>
+	<br>
+	</ul>
 	</ul>
 =end html_DE
 =cut

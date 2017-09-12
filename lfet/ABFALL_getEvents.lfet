@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<LFET version="LF-ET 2.1.5 (170306b)" language="German" saveDate="2017.09.08 at 13:21:39 CEST" saveUser="constantin">
+  <Conditions>
+    <Condition uId="1504126444840415">
+      <Title language="German" value="step"/>
+      <ConditionOccurrences>
+        <ConditionOccurrence uId="1504126505502473">
+          <Symbol language="German" value="1"/>
+          <Title language="German" value="calendar step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$step eq $$symbol"/>
+        </ConditionOccurrence>
+        <ConditionOccurrence uId="1504126505502475">
+          <Symbol language="German" value="2"/>
+          <Title language="German" value="event step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$step eq $$symbol"/>
+        </ConditionOccurrence>
+        <ConditionOccurrence uId="15042103579651680">
+          <Symbol language="German" value="3"/>
+          <Title language="German" value="start time step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$step eq $$Symbol"/>
+        </ConditionOccurrence>
+        <ConditionOccurrence uId="15042131247763480">
+          <Symbol language="German" value="4"/>
+          <Title language="German" value="check start time step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$step eq $$Symbol"/>
+        </ConditionOccurrence>
+        <ConditionOccurrence uId="15042156349605690">
+          <Symbol language="German" value="5"/>
+          <Title language="German" value="search for duplicate step"/>
+        </ConditionOccurrence>
+      </ConditionOccurrences>
+    </Condition>
+    <Condition uId="11446800829457960">
+      <Title language="German" value="has more calendars"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$calIndex &lt; scalar(@calendernamen)"/>
+    </Condition>
+    <Condition uId="15041328493073228">
+      <Title language="German" value="has more events"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$eventIndex &lt; scalar(@termine)"/>
+    </Condition>
+    <Condition uId="15042103469201568">
+      <Title language="German" value="has more start times"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$startTimeIndex &lt; scalar(@starts)"/>
+    </Condition>
+    <Condition uId="15042131718143604">
+      <Title language="German" value="is actual start time valid"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="defined($starts[$startTimeIndex - 1]) &amp;&amp; !($starts[$startTimeIndex - 1] eq '') "/>
+    </Condition>
+    <Condition uId="15042134721243612">
+      <Title language="German" value="is start time in the past"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="Prolog" value="my @SplitDt = split(/ /,$starts[$startTimeIndex - 1]);&lt;br/&gt;my @SplitDate = split(/\./,$SplitDt[0]);&lt;br/&gt;my @SplitTime = split(/\:/,$SplitDt[1]);&lt;br/&gt;my $eventDate = timelocal($SplitTime[2],$SplitTime[1],$SplitTime[0],$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);&lt;br/&gt;my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$dayDiff &lt; 0"/>
+    </Condition>
+    <Condition uId="1504563260773217">
+      <Title language="German" value="is filter defined"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="AttrVal($name, &quot;filter&quot;, &quot;&quot;) ne &quot;&quot;"/>
+    </Condition>
+    <Condition uId="1504563276109219">
+      <Title language="German" value="filter type = include"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="AttrVal($name,&quot;filter_type&quot;,&quot;include&quot;) eq &quot;include&quot;"/>
+    </Condition>
+    <Condition uId="15042145990504271">
+      <Title language="German" value="match filter"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$$dtname_skipEvent($hash,$summarys[$startTimeIndex - 1])"/>
+    </Condition>
+    <Condition uId="15042154384015485">
+      <Title language="German" value="clean summary with regex"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$cleanReadingRegex"/>
+    </Condition>
+    <Condition uId="15042156532625862">
+      <Title language="German" value="is event with summary present"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="$foundItem"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="Prolog" value="$foundItem = ();&lt;br/&gt;foreach my $item (@terminliste ){&lt;br/&gt;&amp;#009;my $tempText= $item-&gt;{summary};&lt;br/&gt;&amp;#009;my $tempCalName= $item-&gt;{calendar};&lt;br/&gt;&amp;#009;my $actualText = $summarys[$startTimeIndex - 1];&lt;br/&gt;&amp;#009;$actualText =~ s/\\,/,/g;&lt;br/&gt;&amp;#009;if ($tempText eq $actualText &amp;&amp; $tempCalName eq $calendername) {&lt;br/&gt;&amp;#009;&amp;#009;$foundItem = $item;&lt;br/&gt;&amp;#009;}&lt;br/&gt;&amp;#009;last if ($foundItem);&lt;br/&gt;}"/>
+    </Condition>
+    <Condition uId="150421831163010877">
+      <Title language="German" value="is event start newer than founded event"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="LogArg" value="($dayDiff &lt; $foundItem-&gt;{days} &amp;&amp; $eventDate &gt; time)"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="Prolog" value="my @SplitDt = split(/ /,$starts[$startTimeIndex - 1]);&lt;br/&gt;my @SplitDate = split(/\./,$SplitDt[0]);&lt;br/&gt;my @SplitTime = split(/\:/,$SplitDt[1]);&lt;br/&gt;my $eventDate = timelocal($SplitTime[2],$SplitTime[1],$SplitTime[0],$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);&lt;br/&gt;my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);"/>
+    </Condition>
+  </Conditions>
+  <Actions>
+    <Action uId="11446800828767967">
+      <Title language="German" value="next calendar"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$calendername = $calendernamen[$calIndex];&lt;br/&gt;$calIndex++;&lt;br/&gt;"/>
+    </Action>
+    <Action uId="150419700844482">
+      <Title language="German" value="next uid"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$uid = $termine[$eventIndex];&lt;br/&gt;$eventIndex++;&lt;br/&gt;Log3 $name,5,&quot;$$dtname - next uid : $uid&quot;;&lt;br/&gt;$startTimeIndex = 0; "/>
+    </Action>
+    <Action uId="15042127420002948">
+      <Title language="German" value="next start time"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$startTimeIndex++;"/>
+    </Action>
+    <Action uId="11446800829627977">
+      <Title language="German" value="get next uids for events"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@termine = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;uid&quot;, &quot;next&quot;)));&lt;br/&gt;$eventIndex = 0;&lt;br/&gt;my $size = scalar(@termine);&lt;br/&gt;Log3 $name, 5, &quot;$$dtname($name) - size of events: $size&quot;;"/>
+    </Action>
+    <Action uId="150419691647874">
+      <Title language="German" value="get start times for uid"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@starts = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;start&quot;, $uid)));&lt;br/&gt;"/>
+    </Action>
+    <Action uId="150419692734976">
+      <Title language="German" value="get summaries for uid"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@summarys = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;summary&quot;, $uid)));"/>
+    </Action>
+    <Action uId="150419693344878">
+      <Title language="German" value="get locations for uid"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@locations = split(/\n/, CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;location&quot;, $uid)));"/>
+    </Action>
+    <Action uId="150419694019780">
+      <Title language="German" value="get descriptions for uid"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@descriptions = split(/\n/, CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;description&quot;, $uid)));"/>
+    </Action>
+    <Action uId="15042154804215497">
+      <Title language="German" value="clean summary with regex"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$summarys[$startTimeIndex-1] =~ s/$cleanReadingRegex//g;"/>
+    </Action>
+    <Action uId="15042158982006097">
+      <Title language="German" value="put new event"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="my $cleanReadingName = $summarys[$startTimeIndex - 1];&lt;br/&gt;if ($calendarNamePraefix) {&lt;br/&gt;&amp;#009;$cleanReadingName = $calendername . &quot;_&quot; . $cleanReadingName;&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;# prepare reading name from summary of event&lt;br/&gt;$cleanReadingName =~ s/($replacementKeys)/$replacement{$1}/eg;&lt;br/&gt;$cleanReadingName =~ tr/a-zA-Z0-9\-_//dc;&lt;br/&gt;&lt;br/&gt;$summarys[$startTimeIndex - 1] =~ s/\\,/,/g;&lt;br/&gt;$cleanReadingName =~ s/\\,/,/g;&lt;br/&gt;&lt;br/&gt;my $eventLocation = &quot;&quot;;&lt;br/&gt;if (defined($locations[$startTimeIndex - 1])) {&lt;br/&gt;&amp;#009;$eventLocation = $locations[$startTimeIndex - 1];&lt;br/&gt;}&lt;br/&gt;my $eventDescription = &quot;&quot;;&lt;br/&gt;if (defined($descriptions[$startTimeIndex - 1])) {&lt;br/&gt;&amp;#009;$eventDescription = $descriptions[$startTimeIndex - 1];&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;my @SplitDt = split(/ /,$starts[$startTimeIndex - 1]);&lt;br/&gt;my @SplitDate = split(/\./,$SplitDt[0]);&lt;br/&gt;my @SplitTime = split(/\:/,$SplitDt[1]);&lt;br/&gt;my $eventDate = timelocal($SplitTime[2],$SplitTime[1],$SplitTime[0],$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);&lt;br/&gt;my $eventDateFormatted = $SplitDt[0];&lt;br/&gt;&lt;br/&gt;if ($date_style eq &quot;dateTime&quot;) {&lt;br/&gt;&amp;#009;$eventDateFormatted = $SplitDt[0] . &quot; &quot; . $SplitDt[1];&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);&lt;br/&gt;&lt;br/&gt;my $weekday = (localtime($eventDate))[6];&lt;br/&gt;my $wdayname = $days[$weekday];&lt;br/&gt;&lt;br/&gt;Log3 $name, 5,  &quot;$$dtname($name) - calendar($calendername) - uid($uid) - start($starts[$startTimeIndex - 1]) - days($dayDiff) - text($summarys[$startTimeIndex - 1]) - location($eventLocation) - description($eventDescription) - readingName($cleanReadingName)&quot;;&lt;br/&gt;&lt;br/&gt;push @terminliste, {&lt;br/&gt;&amp;#009;uid =&gt; $uid,&lt;br/&gt;&amp;#009;start =&gt; $starts[$startTimeIndex - 1],&lt;br/&gt;&amp;#009;weekday =&gt; $wdayname,&lt;br/&gt;&amp;#009;summary =&gt; $summarys[$startTimeIndex - 1],&lt;br/&gt;&amp;#009;location =&gt; $eventLocation,&lt;br/&gt;&amp;#009;description =&gt; $eventDescription,&lt;br/&gt;&amp;#009;readingName =&gt; $cleanReadingName,&lt;br/&gt;&amp;#009;date =&gt; $eventDate,&lt;br/&gt;&amp;#009;days =&gt; $dayDiff,&lt;br/&gt;&amp;#009;calendar =&gt; $calendername,&lt;br/&gt;&amp;#009;dateFormatted =&gt; $eventDateFormatted&lt;br/&gt;};&lt;br/&gt;"/>
+    </Action>
+    <Action uId="15042159109146100">
+      <Title language="German" value="update existing event"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="my $eventLocation = &quot;&quot;;&lt;br/&gt;if (defined($locations[$startTimeIndex - 1])) {&lt;br/&gt;&amp;#009;$eventLocation = $locations[$startTimeIndex - 1];&lt;br/&gt;}&lt;br/&gt;my $eventDescription = &quot;&quot;;&lt;br/&gt;if (defined($descriptions[$startTimeIndex - 1])) {&lt;br/&gt;&amp;#009;$eventDescription = $descriptions[$startTimeIndex - 1];&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;my @SplitDt = split(/ /,$starts[$startTimeIndex - 1]);&lt;br/&gt;my @SplitDate = split(/\./,$SplitDt[0]);&lt;br/&gt;my @SplitTime = split(/\:/,$SplitDt[1]);&lt;br/&gt;my $eventDate = timelocal($SplitTime[2],$SplitTime[1],$SplitTime[0],$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);&lt;br/&gt;my $eventDateFormatted = $SplitDt[0];&lt;br/&gt;&lt;br/&gt;if ($date_style eq &quot;dateTime&quot;) {&lt;br/&gt;&amp;#009;$eventDateFormatted = $SplitDt[0] . &quot; &quot; . $SplitDt[1];&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);&lt;br/&gt;&lt;br/&gt;my $weekday = (localtime($eventDate))[6];&lt;br/&gt;my $wdayname = $days[$weekday];&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;$foundItem-&gt;{uid} = $uid;&lt;br/&gt;$foundItem-&gt;{start} = $starts[$startTimeIndex - 1];&lt;br/&gt;$foundItem-&gt;{weekday} = $wdayname;&lt;br/&gt;$foundItem-&gt;{location} = $eventLocation;&lt;br/&gt;$foundItem-&gt;{description} = $eventDescription;&lt;br/&gt;$foundItem-&gt;{date} = $eventDate;&lt;br/&gt;$foundItem-&gt;{dateFormatted} = $eventDateFormatted;&lt;br/&gt;$foundItem-&gt;{days} = $dayDiff;"/>
+    </Action>
+    <Action uId="1504868875676273">
+      <Title language="German" value="sort list of events"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="Log3 $name, 5, &quot;Vor Sortieren&quot;;&lt;br/&gt;foreach my $a (@terminliste) {&lt;br/&gt;&amp;#009;Log3 $name, 5, $a-&gt;{readingName};&lt;br/&gt;}&lt;br/&gt;@terminliste = sort {$a-&gt;{readingName} cmp $b-&gt;{readingName}} @terminliste;&lt;br/&gt;Log3 $name, 5, &quot;Nach Sortieren&quot;;&lt;br/&gt;foreach my $a (@terminliste) {&lt;br/&gt;&amp;#009;Log3 $name, 5, $a-&gt;{readingName};&lt;br/&gt;}"/>
+    </Action>
+    <Action uId="1504126438918413">
+      <Title language="German" value="step"/>
+      <ActionOccurrences>
+        <ActionOccurrence uId="1504126582566572">
+          <Symbol language="German" value="E"/>
+          <Title language="German" value="end step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step = -1;"/>
+        </ActionOccurrence>
+        <ActionOccurrence uId="1504126582786580">
+          <Symbol language="German" value="2"/>
+          <Title language="German" value="event step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step = $$symbol;"/>
+        </ActionOccurrence>
+        <ActionOccurrence uId="15042118616241787">
+          <Symbol language="German" value="3"/>
+          <Title language="German" value="start time step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step =  $$Symbol"/>
+        </ActionOccurrence>
+        <ActionOccurrence uId="15042122247991793">
+          <Symbol language="German" value="1"/>
+          <Title language="German" value="calendar step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step = $$Symbol"/>
+        </ActionOccurrence>
+        <ActionOccurrence uId="15042143145163943">
+          <Symbol language="German" value="4"/>
+          <Title language="German" value="check start time step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step = $$symbol;"/>
+        </ActionOccurrence>
+        <ActionOccurrence uId="15042157334215871">
+          <Symbol language="German" value="5"/>
+          <Title language="German" value="search for duplicate step"/>
+          <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="$step = $$symbol;"/>
+        </ActionOccurrence>
+      </ActionOccurrences>
+    </Action>
+  </Actions>
+  <Rules lastId="43">
+    <Rule id="7">
+      <ConditionLink link="11446800829457960" conditionState="true"/>
+      <ActionLink link="11446800828767967"/>
+      <ActionLink link="11446800829627977"/>
+      <ConditionOccurrenceLink link="1504126505502473"/>
+      <ActionOccurrenceLink link="1504126582786580"/>
+    </Rule>
+    <Rule id="43">
+      <ConditionLink link="11446800829457960" conditionState="false"/>
+      <ConditionOccurrenceLink link="1504126505502473"/>
+      <ActionOccurrenceLink link="1504126582566572"/>
+      <ActionLink link="1504868875676273"/>
+    </Rule>
+    <Rule id="14">
+      <ConditionOccurrenceLink link="1504126505502475"/>
+      <ActionOccurrenceLink link="15042118616241787"/>
+      <ConditionLink link="15041328493073228" conditionState="true"/>
+      <ActionLink link="150419700844482"/>
+      <ActionLink link="150419691647874"/>
+      <ActionLink link="150419692734976"/>
+      <ActionLink link="150419693344878"/>
+      <ActionLink link="150419694019780"/>
+    </Rule>
+    <Rule id="15">
+      <ConditionOccurrenceLink link="1504126505502475"/>
+      <ActionOccurrenceLink link="15042122247991793"/>
+      <ConditionLink link="15041328493073228" conditionState="false"/>
+    </Rule>
+    <Rule id="22">
+      <ConditionOccurrenceLink link="15042103579651680"/>
+      <ConditionLink link="15042103469201568" conditionState="true"/>
+      <ActionOccurrenceLink link="15042143145163943"/>
+      <ActionLink link="15042127420002948"/>
+    </Rule>
+    <Rule id="17">
+      <ConditionOccurrenceLink link="15042103579651680"/>
+      <ConditionLink link="15042103469201568" conditionState="false"/>
+      <ActionOccurrenceLink link="1504126582786580"/>
+    </Rule>
+    <Rule id="19">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="true"/>
+      <ActionOccurrenceLink link="15042118616241787"/>
+    </Rule>
+    <Rule id="34">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="true"/>
+      <ConditionLink link="15042145990504271" conditionState="true"/>
+      <ConditionLink link="15042154384015485" conditionState="true"/>
+      <ActionLink link="15042154804215497"/>
+    </Rule>
+    <Rule id="35">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="true"/>
+      <ConditionLink link="15042145990504271" conditionState="true"/>
+      <ConditionLink link="15042154384015485" conditionState="false"/>
+    </Rule>
+    <Rule id="36">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042118616241787"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="true"/>
+      <ConditionLink link="15042145990504271" conditionState="false"/>
+    </Rule>
+    <Rule id="37">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042118616241787"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="false"/>
+      <ConditionLink link="15042145990504271" conditionState="true"/>
+    </Rule>
+    <Rule id="38">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="false"/>
+      <ConditionLink link="15042145990504271" conditionState="false"/>
+      <ConditionLink link="15042154384015485" conditionState="true"/>
+      <ActionLink link="15042154804215497"/>
+    </Rule>
+    <Rule id="39">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="true"/>
+      <ConditionLink link="1504563276109219" conditionState="false"/>
+      <ConditionLink link="15042145990504271" conditionState="false"/>
+      <ConditionLink link="15042154384015485" conditionState="false"/>
+    </Rule>
+    <Rule id="41">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="false"/>
+      <ConditionLink link="15042154384015485" conditionState="true"/>
+      <ActionLink link="15042154804215497"/>
+    </Rule>
+    <Rule id="42">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="true"/>
+      <ConditionLink link="15042134721243612" conditionState="false"/>
+      <ActionOccurrenceLink link="15042157334215871"/>
+      <ConditionLink link="1504563260773217" conditionState="false"/>
+      <ConditionLink link="15042154384015485" conditionState="false"/>
+    </Rule>
+    <Rule id="21">
+      <ConditionOccurrenceLink link="15042131247763480"/>
+      <ConditionLink link="15042131718143604" conditionState="false"/>
+      <ActionOccurrenceLink link="15042118616241787"/>
+    </Rule>
+    <Rule id="32">
+      <ConditionOccurrenceLink link="15042156349605690"/>
+      <ConditionLink link="15042156532625862" conditionState="true"/>
+      <ActionOccurrenceLink link="15042118616241787"/>
+      <ActionLink link="15042159109146100"/>
+      <ConditionLink link="150421831163010877" conditionState="true"/>
+    </Rule>
+    <Rule id="33">
+      <ConditionOccurrenceLink link="15042156349605690"/>
+      <ConditionLink link="15042156532625862" conditionState="true"/>
+      <ActionOccurrenceLink link="15042118616241787"/>
+      <ConditionLink link="150421831163010877" conditionState="false"/>
+    </Rule>
+    <Rule id="30">
+      <ConditionOccurrenceLink link="15042156349605690"/>
+      <ConditionLink link="15042156532625862" conditionState="false"/>
+      <ActionOccurrenceLink link="15042118616241787"/>
+      <ActionLink link="15042158982006097"/>
+    </Rule>
+  </Rules>
+  <Title language="German" value="ABFALL: getEvents"/>
+  <UrlsOut>
+    <Url title="Ordner" url="file:///./"/>
+  </UrlsOut>
+  <Text language="German" value="SourceCode&lt;br/&gt;&lt;br/&gt;# lese alle Termine von allen Kalendern und gebe sie in einer Liste zurück&lt;br/&gt;sub getEvents($){&lt;br/&gt;&amp;#009;my ($hash) = @_;&lt;br/&gt;&amp;#009;my @terminliste ;&lt;br/&gt;&amp;#009;my $name = $hash-&gt;{NAME};&lt;br/&gt;&amp;#009;my @calendernamen = split( &quot;,&quot;, $hash-&gt;{KALENDER});&lt;br/&gt;&lt;br/&gt;&amp;#009;my $cleanReadingRegex = AttrVal($name,&quot;abfall_clear_reading_regex&quot;,&quot;&quot;);&lt;br/&gt;&amp;#009;my $calendarNamePraefix = AttrVal($name,&quot;calendarname_praefix&quot;,&quot;1&quot;);&lt;br/&gt;&lt;br/&gt;&amp;#009;my %replacement = (&quot;ä&quot; =&gt; &quot;ae&quot;, &quot;Ä&quot; =&gt; &quot;Ae&quot;, &quot;ü&quot; =&gt; &quot;ue&quot;, &quot;Ü&quot; =&gt; &quot;Ue&quot;, &quot;ö&quot; =&gt; &quot;oe&quot;, &quot;Ö&quot; =&gt; &quot;Oe&quot;, &quot;ß&quot; =&gt; &quot;ss&quot; );&lt;br/&gt;&amp;#009;my $replacementKeys= join (&quot;|&quot;, keys(%replacement));&lt;br/&gt;&lt;br/&gt;&amp;#009;my $wdMapping = AttrVal($name,&quot;weekday_mapping&quot;,&quot;Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag&quot;);&lt;br/&gt;&amp;#009;my $date_style = AttrVal($name, &quot;date_style&quot;,&quot;date&quot;);&lt;br/&gt;&amp;#009;my @days = split(&quot;\ &quot;, $wdMapping);&lt;br/&gt;&amp;#009;Log3 $name, 5,  &quot;getEvents($name) - weekDayMapping ($wdMapping)&quot; ;&lt;br/&gt;&lt;br/&gt;&amp;#009;foreach my $calendername (@calendernamen){&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;my $all = CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;uid&quot;, &quot;next&quot;));&lt;br/&gt;&amp;#009;&amp;#009;my @termine=split(/\n/,$all);&lt;br/&gt;&amp;#009;&amp;#009;my $now_time = localtime();&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;foreach my $uid (@termine){&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;# get all information for one uid&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;my @starts = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;start&quot;, $uid)));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;my @summarys = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;summary&quot;, $uid)));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;my @locations = split(/\n/, CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;location&quot;, $uid)));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;my @descriptions = split(/\n/, CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;description&quot;, $uid)));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;# next if (not (scalar(@starts) eq scalar(@summarys) eq scalar(@locations) eq scalar(@descriptions)));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;for(my $i = 0; $i &lt;= scalar(@starts); $i++) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;next if (not defined($starts[$i]));&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;next if ($starts[$i] eq '');&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;Log3 $name, 5, &quot;getEvents($name) -  calendar($calendername) - uid($uid) - start($starts[$i])&quot;;&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# skip events in the past&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my @SplitDt = split(/ /,$starts[$i]);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my @SplitDate = split(/\./,$SplitDt[0]);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my @SplitTime = split(/\:/,$SplitDt[1]);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $eventDate = timelocal($SplitTime[2],$SplitTime[1],$SplitTime[0],$SplitDate[0],$SplitDate[1]-1,$SplitDate[2]);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $eventDateFormatted = $SplitDt[0];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if ($date_style eq &quot;dateTime&quot;) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$eventDateFormatted = $SplitDt[0] . &quot; &quot; . $SplitDt[1];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $dayDiff = floor(($eventDate - time) / 60 / 60 / 24 + 1);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# next if ($eventDate &lt; $now_time);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;next if ($dayDiff &lt; 0);&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $eventText = $summarys[$i];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# skip events of filter conditions&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;next if (skipEvent($hash, $eventText));&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# cleanup summary of event&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if ($cleanReadingRegex){&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$eventText =~ s/$cleanReadingRegex//g;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $cleanReadingName = $eventText;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# should add praefix from calendar&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if ($calendarNamePraefix) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$cleanReadingName = $calendername . &quot;_&quot; . $cleanReadingName;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# prepare reading name from summary of event&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$cleanReadingName =~ s/($replacementKeys)/$replacement{$1}/eg;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$cleanReadingName =~ tr/a-zA-Z0-9\-_//dc;&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;Log3 $name, 5, &quot;$SplitDt[0]&quot;;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $weekday = (localtime($eventDate))[6];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $wdayname = $days[$weekday];&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $eventLocation = $locations[$i];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $eventDescription = $descriptions[$i];&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if (not defined($eventLocation)) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$eventLocation = &quot;&quot;;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if (not defined($eventDescription)) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$eventDescription = &quot;&quot;;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;Log3 $name, 5,  &quot;getEvents($name) - calendar($calendername) - uid($uid) - start($starts[$i]) - days($dayDiff) - text($eventText) - location($eventLocation) - description($eventDescription)&quot;;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $foundItem = ();&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;foreach my $item (@terminliste ){&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $tempText= $item-&gt;{summary};&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;my $tempCalName= $item-&gt;{calendar};&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if ($tempText eq $eventText &amp;&amp; $tempCalName eq $calendername) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$foundItem = $item;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;last if ($foundItem);&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;if ($foundItem) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# Log3 $name, 5, &quot;getEvents($name) - calendar($calendername) - &quot; . $foundItem-&gt;{summary} . &quot; - allready exists!&quot;;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# if ($dayDiff &lt; $foundItem-&gt;{days} &amp;&amp; $eventDate &gt; time) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;Log3 $name, 5, &quot;getEvents($name) - calendar($calendername) - change - &quot; . $foundItem-&gt;{start} .&quot; to &quot; . $starts[$i];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{uid} = $uid;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{start} = $starts[$i];&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{weekday} = $wdayname;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{location} = $eventLocation;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{description} = $eventDescription;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{date} = $eventDate;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{dateFormatted} = $eventDateFormatted;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;#&amp;#009;$foundItem-&gt;{days} = $dayDiff;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;# }&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;} else {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$eventText =~ s/\\,/,/g;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$cleanReadingName =~ s/\\,/,/g;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;push @terminliste, {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;uid =&gt; $uid,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;start =&gt; $starts[$i],&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;weekday =&gt; $wdayname,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;summary =&gt; $eventText,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;location =&gt; $eventLocation,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;description =&gt; $eventDescription,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;readingName =&gt; $cleanReadingName,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;date =&gt; $eventDate,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;days =&gt; $dayDiff,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;calendar =&gt; $calendername,&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;&amp;#009;dateFormatted =&gt; $eventDateFormatted};&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;} # end for each uid&lt;br/&gt;&amp;#009;} # end for each calendar&lt;br/&gt;&amp;#009;return @terminliste;&lt;br/&gt;} # end sub getEvents&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;sub skipEvent($@) {&lt;br/&gt;&amp;#009;my ($hash, @val) = @_;&lt;br/&gt;&amp;#009;my $event = join(' ', @val);&lt;br/&gt;&amp;#009;my $name = $hash-&gt;{NAME};&lt;br/&gt;&amp;#009;my $skip = 0;&lt;br/&gt;&amp;#009;my $filter = AttrVal($name,&quot;filter&quot;,&quot;&quot;);&lt;br/&gt;&lt;br/&gt;&amp;#009;if ($filter ne &quot;&quot;) {&lt;br/&gt;&amp;#009;&amp;#009;# skip event of filter conditions - start&lt;br/&gt;&amp;#009;&amp;#009;my @filterArray=split( ',' ,$filter);&lt;br/&gt;&amp;#009;&amp;#009;foreach my $eachFilter (@filterArray) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;# fix from fhem forum user justme1968 to support regex for filter&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;Log3 $name, 5,  &quot;skipEvent($name) - event($event) - filter($eachFilter)&quot;;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;if ($eachFilter =~ m'^/(.*)/$' &amp;&amp; $event =~ m/$1/ ) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$skip = 1;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;} elsif (index($event, $eachFilter) != -1) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$skip = 1;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;} # end foreach&lt;br/&gt;&amp;#009;} # end if filter&lt;br/&gt;&amp;#009;# skip event of filter conditions - end&lt;br/&gt;&amp;#009;Log3 $name, 5, &quot;skipEvent($name) - $event&quot; if ($skip);&lt;br/&gt;&amp;#009;return $skip;&lt;br/&gt;} # end skipEvent"/>
+  <SourceCode codeLanguage="Perl" sourceCodeType="Prolog" value="package main;&lt;br/&gt;&lt;br/&gt;use strict;&lt;br/&gt;use warnings;&lt;br/&gt;use POSIX;&lt;br/&gt;use Time::Local;&lt;br/&gt;use Time::Piece;&lt;br/&gt;&lt;br/&gt;sub $$dtname_Initialize($$)&lt;br/&gt;{&lt;br/&gt;  my ($hash) = @_;&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;sub $$dtname_skipEvent($@) {&lt;br/&gt;&amp;#009;my ($hash, @val) = @_;&lt;br/&gt;&amp;#009;my $event = join(' ', @val);&lt;br/&gt;&amp;#009;my $name = $hash-&gt;{NAME};&lt;br/&gt;&amp;#009;my $skip = 0;&lt;br/&gt;&amp;#009;my $filter = AttrVal($name,&quot;filter&quot;,&quot;&quot;);&lt;br/&gt;&lt;br/&gt;&amp;#009;if ($filter ne &quot;&quot;) {&lt;br/&gt;&amp;#009;&amp;#009;# skip event of filter conditions - start&lt;br/&gt;&amp;#009;&amp;#009;my @filterArray=split( ',' ,$filter);&lt;br/&gt;&amp;#009;&amp;#009;foreach my $eachFilter (@filterArray) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;# fix from fhem forum user justme1968 to support regex for filter&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;Log3 $name, 5,  &quot;skipEvent($name) - event($event) - filter($eachFilter)&quot;;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;if ($eachFilter =~ m'^/(.*)/$' &amp;&amp; $event =~ m/$1/ ) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$skip = 1;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;} elsif (index($event, $eachFilter) != -1) {&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;&amp;#009;$skip = 1;&lt;br/&gt;&amp;#009;&amp;#009;&amp;#009;}&lt;br/&gt;&amp;#009;&amp;#009;} # end foreach&lt;br/&gt;&amp;#009;} # end if filter&lt;br/&gt;&amp;#009;# skip event of filter conditions - end&lt;br/&gt;&amp;#009;Log3 $name, 5, &quot;skipEvent($name) - $event&quot; if ($skip);&lt;br/&gt;&amp;#009;return $skip;&lt;br/&gt;} # end skipEvent&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;sub $$dtname($) {&lt;br/&gt;&amp;#009;my ($hash) = @_;&lt;br/&gt;&amp;#009;my @terminliste ;&lt;br/&gt;&amp;#009;my $name = $hash-&gt;{NAME};&lt;br/&gt;&amp;#009;my @calendernamen = split( &quot;,&quot;, $hash-&gt;{KALENDER});&lt;br/&gt;&amp;#009;my $calendername = &quot;&quot;;&lt;br/&gt;&amp;#009;my $uid = &quot;&quot;;&lt;br/&gt;&lt;br/&gt;&amp;#009;my @termine;&lt;br/&gt;&lt;br/&gt;&amp;#009;my @starts;&lt;br/&gt;&amp;#009;my @summarys;&lt;br/&gt;&amp;#009;my @locations;&lt;br/&gt;&amp;#009;my @descriptions;&lt;br/&gt;&lt;br/&gt;&amp;#009;my $cleanReadingRegex = AttrVal($name,&quot;abfall_clear_reading_regex&quot;,&quot;&quot;);&lt;br/&gt;&amp;#009;my $calendarNamePraefix = AttrVal($name,&quot;calendarname_praefix&quot;,&quot;1&quot;);&lt;br/&gt;&lt;br/&gt;&amp;#009;my %replacement = (&quot;ä&quot; =&gt; &quot;ae&quot;, &quot;Ä&quot; =&gt; &quot;Ae&quot;, &quot;ü&quot; =&gt; &quot;ue&quot;, &quot;Ü&quot; =&gt; &quot;Ue&quot;, &quot;ö&quot; =&gt; &quot;oe&quot;, &quot;Ö&quot; =&gt; &quot;Oe&quot;, &quot;ß&quot; =&gt; &quot;ss&quot; );&lt;br/&gt;&amp;#009;my $replacementKeys= join (&quot;|&quot;, keys(%replacement));&lt;br/&gt;&lt;br/&gt;&amp;#009;my $wdMapping = AttrVal($name,&quot;weekday_mapping&quot;,&quot;Sonntag Montag Dienstag Mittwoch Donnerstag Freitag Samstag&quot;);&lt;br/&gt;&amp;#009;my $date_style = AttrVal($name, &quot;date_style&quot;,&quot;date&quot;);&lt;br/&gt;&amp;#009;my @days = split(&quot;\ &quot;, $wdMapping);&lt;br/&gt;&amp;#009;Log3 $name, 5,  &quot;$$dtName($name) - weekDayMapping ($wdMapping)&quot; ;&lt;br/&gt;&lt;br/&gt;&amp;#009;my $calIndex = 0;&lt;br/&gt;&amp;#009;my $eventIndex = 0;&lt;br/&gt;&amp;#009;my $startTimeIndex = 0;&lt;br/&gt;&amp;#009;my $step = 1;&lt;br/&gt;&lt;br/&gt;&amp;#009;# to search for a event with same summary&lt;br/&gt;&amp;#009;my $foundItem = ();&lt;br/&gt;&lt;br/&gt;&amp;#009;while ($step != -1) {&lt;br/&gt;&amp;#009;&lt;br/&gt;&lt;br/&gt;"/>
+  <SourceCode codeLanguage="Perl" sourceCodeType="Epilog" value="} # end while&lt;br/&gt;return @terminliste;&lt;br/&gt;}&lt;br/&gt;&lt;br/&gt;1;"/>
+  <SourceCode codeLanguage="Perl" sourceCodeType="Trace" value="Log3 $name, 5, &quot;$$dtname($name) - $$dtname, $$version, $$Rule, $$Rules&quot;;"/>
+</LFET>
