@@ -1,12 +1,7 @@
 FHEM ABFALL and more last change:
-2017-09-09
- - Merge branch 'feature/automated-testing' into develop
+2017-09-13
+ - replace  line for version modul checks
 
-added tests for readings based events and for next reading
+added placeholder for prepare_update.sh
 
-fixed test
-
-add new action to sort array of events
-correct sort comparator
-
-try shunit2 for automated testing
+optimize commandref
