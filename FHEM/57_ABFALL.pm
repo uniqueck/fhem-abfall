@@ -182,69 +182,124 @@ sub ABFALL_Notify($$)
 
 <a name="ABFALL"></a>
 <h3>ABFALL</h3>
-<ul>This module creates a device with deadlines based on a calendar-device of the 57_Calendar.pm module. You need to install the  perl-modul Date::Parse!</ul>
+<ul>
+<br>
+<a name="ABFALLdefine"></a>
 <b>Define</b>
-<ul><code>define &lt;Name&gt; ABFALL &lt;calendarname&gt; &lt;updateintervall in sec (default 43200)&gt;</code></ul><br>
-<ul><code>define myAbfall ABFALL Googlecalendar 3600</code></ul><br>
-<a name="ABFALL set"></a>
+<ul>
+	<code>define &lt;name&gt; ABFALL &lt;calendarname&gt;</code><br>
+	<code>define &lt;name&gt; ABFALL &lt;calendarname&gt;,&lt;additional calendarname&gt;</code><br>
+	<br>
+	Defines a ABFALL device.<br>
+	A ABFALL device creates events with deadlines based on one or more calendar-device (57_Calendar.pm). <br>
+	You need to install the  perl-modul Date::Parse!<br>
+</ul>
+<br>
+<a name="ABFALLset"></a>
 <b>Set</b>
-<ul>update readings:</ul>
-<ul><code>set &lt;Name&gt; update</code></ul>
-<ul><code>set myAbfall update</code></ul><br>
+<ul>
+	<code>set &lt;name&gt; update</code><br>
+	Forces to read all events from the calendar-devices and create / update readings.<br>
+</ul>
+<br>
 <a name="ABFALLattr"></a>
-	<b>Attributes</b><br><br>
-	<ul>
-		<li><a href="#readingFnAttributes">readingFnAttributes</a></li>
-		<br>
-		<li><b>abfall_clear_reading_regex</b></li>
-			regex to remove part of the summary text<br>
-		<li><b>weekday_mapping</b></li>
-			mapping for the days of week<br>
-		<li><b>calendarname_praefix </b></li>
-			add calendar name as praefix for reading<br>
-		<li><b>delimiter_text_reading </b></li>
-			delimiter for join events on same day for readings now_text and next_text<br>
-		<li><b>delimiter_reading </b></li>
-			delimiter for join reading name on readings now and next<br>
-		<li><b>filter</b></li>
-			filter to skip or keep events, possible values regex or string with event name parts<br>
-		<li><b>filter_type</b></li>
-			skip events or keep events with filter, default value is include this mean keep<br>
-	</ul>
+<b>Attributes</b>
+<ul>
+	<li><code>abfall_clear_reading_regex</code><br>
+		regex to remove part of the summary text</li><p>
+	<li><code>weekday_mapping</code><br>
+		mapping for the days of week
+	</li><p>
+	<li><code>calendarname_praefix </code><br>
+		add calendar name as praefix for reading</li><p>
+	<li><code>delimiter_text_reading</code><br>
+			delimiter for join events on same day for readings now_text and next_text</li><p>
+	<li><code>delimiter_reading </code><br>
+			delimiter for join reading name on readings now and next</li><p>
+	<li><code>filter</code><br>
+			filter to skip or keep events, possible values regex or string with event name parts</li><p>
+	<li><code>filter_type</code><br>
+			skip events or keep events with filter, default value is include this mean keep</li><p>
+	<li><a href="#readingFnAttributes">readingFnAttributes</a></li>
+</ul>
+<br>
+<b>Examples</b>
+<ul>
+	see <a href="https://wiki.fhem.de/wiki/ABFALL">FHEM Wiki</a>
+<br>
+</ul>
+</ul>
 =end html
 
 =begin html_DE
 
 <a name="ABFALL"></a>
 <h3>ABFALL</h3>
-<ul>Dieses Modul erstellt ein Device welches als Readings Termine eines Kalender, basierend auf dem 57_Calendar.pm Modul, besitzt. Ihr müsst das Perl-Modul Date::Parse installieren!</ul>
-<b>Define</b>
-<ul><code>define &lt;Name&gt; ABFALL &lt;Kalendername&gt; &lt;updateintervall in sek (default 43200)&gt;</code></ul><br>
-<ul><code>define myAbfall ABFALL Googlekalender 3600</code></ul><br>
-<a name="ABFALL set"></a>
-<b>Set</b>
-<ul>update readings:</ul>
-<ul><code>set &lt;Name&gt; update</code></ul>
-<ul><code>set myAbfall update</code></ul><br>
-<a name="ABFALLattr"></a>
-	<b>Attributes</b><br><br>
+<ul>
+	<br>
+	<a name="ABFALLdefine"></a>
+	<b>Define</b>
 	<ul>
-		<li><a href="#readingFnAttributes">readingFnAttributes</a></li>
+		<code>define &lt;name&gt; ABFALL &lt;Kalendername&gt;</code><br>
+		<code>define &lt;name&gt; ABFALL &lt;Kalendername&gt;,&lt;weiterer Kalendername&gt;</code><br>
 		<br>
-		<li><b>abfall_clear_reading_regex</b></li>
-			regulärer Ausdruck zum Entfernt eines Bestandteils des Terminnamens<br>
-		<li><b>weekday_mapping</b></li>
-			Mapping der Wochentag<br>
-		<li><b>calendarname_praefix </b></li>
-			soll der calendar name als Präfix im reading geführt werden<br
-		<li><b>delimiter_text_reading </b></li>
-			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen<br>
-			gilt nur für die Readings next_text und now_text
-		<li><b>delimiter_reading </b></li>
-			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen<br>
-			gilt nur für die readings next und now
-		<li><b>filter </b></li>
-			Zeichenkette zum Ausfiltern der Events aus den Kalendern, es sind auch regex möglich<br>
+		Definiert ein Abfall-Device.<br><br>
+		Ein Abfall-Device ermittelt, basierend auf einem oder mehreren Kalender-Devices, Termine und stellt verschiedene 'Readings' hierfür bereit.<br>
+		Das Perl Modul Date::Parse muss installiert sein!<br>
+	</ul>
+	<br>
+	<a name="ABFALLset"></a>
+	<b>Set</b>
+	<ul>
+		<code>set &lt;name&gt; update</code><br>
+		Erzwingt das Auslesen der Kalender-Devices und neuerstellen der Readings.<br><br>
+		<code>set &lt;name&gt; count &lt;abfallArt&gt;</code><br>
+		Steht nur zur Verfügung wenn das Attribut <code>enable_counting_pickups</code> auf 1 steht.<br>
+		Erhöht das Reading <code>&lt;abfallArt&gt;_pickups_used</code> um 1, sofern die <code>AbfallArt</code> als Reading existiert.<br><br>
+		<code>set &lt;name&gt; clear</code><br>
+		Steht nur zur Verfügung wenn das Attribut <code>enable_counting_pickups</code> auf 1 steht.<br>
+		Löscht alle Readings <code>*_pickups_used</code> und <code>*_pickups</code>
+	</ul>
+	<br>
+	<a name="ABFALLattr"></a>
+	<b>Attribute</b>
+	<ul>
+		<li><code>abfall_clear_reading_regex</code><br>
+			regulärer Ausdruck zum Entfernt eines Bestandteils des Terminnamens</li><p>
+		<li><code>weekday_mapping</code><br>
+			Mapping der Wochentag</li><p>
+		<li><code>calendarname_praefix</code><br>
+			soll der <code>calendarname</code> als Präfix im reading geführt werden</li><p>
+		<li><code>delimiter_text_reading</code><br>
+			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen
+			gilt nur für die Readings next_text und now_text</li><p>
+		<li><code>delimiter_reading</code><br>
+			Trennzeichen(kette) zum Verbinden von Terminen, wenn sie auf den gleichen Tag fallen
+			gilt nur für die readings next und now</li><p>
+		<li><code>filter</code><br>
+			Zeichenkette zum Ausfiltern der Events aus den Kalendern, es sind auch regex möglich</li><p>
+		<li><code>filter_type</code><br>
+			Sollen durch den angegebene Filter Termine entfernt werden, oder erhalten bleiben</li><p>
+		<li><code>date_style</code><br>
+			Soll das Datum mit Uhrzeit oder ohne Uhrzeit angezeigt werden</li><p>
+		<li><code>enable_old_readingnames</code><br>
+			Stellt die Readings *_wochtag, *_datum und *_tage zur Verfügung, allerdings
+			ist dieses Attribut deprecated, wird also in einer der folgenden Version entfernt, so dass dann diese Readings nur noch
+			mit ihren englischen Varianten zur Verfügung stehen.
+		</li><p>
+		<li><code>enable_counting_pickups</code><br>
+			Hiermit werden die Abholungen gezählt und es kann mit Milfe von <code>set &lt;name&gt; count &lt;abfallArt&gt;</code> die genutzte Abholung
+			gezählt werden. Mit Hilfe von <code>set &lt;name&gt; clear</code> können die Abholungen wieder auf 0 gesetzt werden. Das ist sinnvoll bei Wechsel
+			eines Abrechnungszeitraum.
+		</li><p>
+		<li><a href="#readingFnAttributes">readingFnAttributes</a></li>
+	</ul>
+	<br>
+	<b>Anwendungsbeispiele</b>
+	<ul>
+		siehe h<a href="https://wiki.fhem.de/wiki/ABFALL">FHEM Wiki</a>
+	<br>
+	</ul>
 	</ul>
 =end html_DE
 =cut
