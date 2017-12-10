@@ -118,7 +118,7 @@ sub ABFALL_Count($$){
 		$result = "\"set $name count $abfallArt\" : unknown waste type $abfallArt";
 	} else {
 		$waste_pickup_used = $waste_pickup_used + 1;
-		readingsSingleUpdate($hash, $abfallArt ."_pickups_used", $waste_pickup_used, "0");
+		readingsSingleUpdate($hash, $abfallArt ."_pickups_used", $waste_pickup_used, "1");
 	}
 	return $result;
 }
