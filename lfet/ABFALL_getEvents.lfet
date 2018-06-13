@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<LFET version="LF-ET 2.1.5 (170905a)" language="German" saveDate="2017.12.29 at 23:46:22 CET" saveUser="constantin">
+<LFET version="LF-ET 2.1.5 (171120a)" language="German" saveDate="2018.06.13 at 12:33:02 CEST" saveUser="constantin">
   <Conditions>
     <Condition uId="1504126444840415">
       <Title language="German" value="step"/>
@@ -94,23 +94,23 @@
     </Action>
     <Action uId="11446800829627977">
       <Title language="German" value="get next uids for events"/>
-      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@termine = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;uid&quot;, &quot;next&quot;)));&lt;br/&gt;$eventIndex = 0;&lt;br/&gt;my $size = scalar(@termine);&lt;br/&gt;Log3 $name, 5, &quot;$$dtname($name) - size of events: $size&quot;;"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@termine = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot;-&quot;, 'events', 'format:custom=&quot;$U&quot;', 'series:next')));&lt;br/&gt;$eventIndex = 0;&lt;br/&gt;my $size = scalar(@termine);&lt;br/&gt;Log3 $name, 5, &quot;$$dtname($name) - size of events: $size&quot;;"/>
     </Action>
     <Action uId="150419691647874">
       <Title language="German" value="get start times for uid"/>
-      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@starts = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;start&quot;, $uid)));&lt;br/&gt;"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@starts = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot;-&quot;,&quot;events&quot;, 'format:custom=&quot;$T1&quot;', 'filter:uid==&quot;'.$uid.'&quot;')));&lt;br/&gt;"/>
     </Action>
     <Action uId="150419692734976">
       <Title language="German" value="get summaries for uid"/>
-      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@summarys = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;summary&quot;, $uid)));"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@summarys = split(/\n/,CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot;-&quot;,&quot;events&quot;, 'format:custom=&quot;$S&quot;', 'filter:uid==&quot;'.$uid.'&quot;')));"/>
     </Action>
     <Action uId="150419693344878">
       <Title language="German" value="get locations for uid"/>
-      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@locations = split(/\n/, CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;location&quot;, $uid)));"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@locations = split(/\n/, CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot;-&quot;,&quot;events&quot;, 'format:custom=&quot;$L&quot;', 'filter:uid==&quot;'.$uid.'&quot;')));"/>
     </Action>
     <Action uId="150419694019780">
       <Title language="German" value="get descriptions for uid"/>
-      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@descriptions = split(/\n/, CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot; &quot;,&quot;description&quot;, $uid)));"/>
+      <SourceCode codeLanguage="Perl" sourceCodeType="StmtSeq" value="@descriptions = split(/\n/, CallFn($calendername, &quot;GetFn&quot;, $defs{$calendername},(&quot;-&quot;,&quot;events&quot;, 'format:custom=&quot;$DS&quot;', 'filter:uid==&quot;'.$uid.'&quot;')));&lt;br/&gt;"/>
     </Action>
     <Action uId="15042154804215497">
       <Title language="German" value="clean summary with regex"/>
