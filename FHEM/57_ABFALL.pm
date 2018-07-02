@@ -1,4 +1,4 @@
-# $Id: 57_ABFALL.pm 11020 2017-09-13 00:40:21Z uniqueck $
+# $Id: 57_ABFALL.pm 11023 2018-06-13 12:34:34Z uniqueck $
 ###########################
 #	ABFALL
 #
@@ -118,7 +118,7 @@ sub ABFALL_Count($$){
 		$result = "\"set $name count $abfallArt\" : unknown waste type $abfallArt";
 	} else {
 		$waste_pickup_used = $waste_pickup_used + 1;
-		readingsSingleUpdate($hash, $abfallArt ."_pickups_used", $waste_pickup_used, "0");
+		readingsSingleUpdate($hash, $abfallArt ."_pickups_used", $waste_pickup_used, "1");
 	}
 	return $result;
 }

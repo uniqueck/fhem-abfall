@@ -1,7 +1,3 @@
 FHEM ABFALL and more last change:
-2017-09-13
- - replace  line for version modul checks
-
-added placeholder for prepare_update.sh
-
-optimize commandref
+2018-06-13
+ - update because of calendar api changed
