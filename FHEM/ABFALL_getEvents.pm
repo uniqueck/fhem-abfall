@@ -308,8 +308,17 @@ sub ABFALL_getEvents($) {
                                 Log3 $name, 5, "ABFALL_getEvents($name) - ABFALL_getEvents, 20180613.123304, 8, 19";
                                 # Trace <----
                                 
-                                # Action A09: clean summary with regex
-                                $summarys[$startTimeIndex-1] =~ s/$cleanReadingRegex//g;
+                                #split multiple regex struct
+                                my @SplitCleanReadingRegex = split(/;/,$cleanReadingRegex);
+                                
+                                #split each single regex struct
+                                foreach my $CleanReadingRegexSingle (@SplitCleanReadingRegex) 
+                                {
+                                    my @SplitCleanReadingRegexSingle = split(/\//,$CleanReadingRegexSingle);
+                                    
+                                    # Action A09: clean summary with regex
+                                    $summarys[$startTimeIndex-1] =~ s/@SplitCleanReadingRegexSingle[0]/@SplitCleanReadingRegexSingle[1]/g;
+                                }
                                 
                                 # Action A13/06: step / 5 / search for duplicate step
                                 $step = 5;
@@ -377,8 +386,17 @@ sub ABFALL_getEvents($) {
                                 Log3 $name, 5, "ABFALL_getEvents($name) - ABFALL_getEvents, 20180613.123304, 12, 19";
                                 # Trace <----
                                 
-                                # Action A09: clean summary with regex
-                                $summarys[$startTimeIndex-1] =~ s/$cleanReadingRegex//g;
+                                #split multiple regex struct
+                                my @SplitCleanReadingRegex = split(/;/,$cleanReadingRegex);
+                                
+                                #split each single regex struct
+                                foreach my $CleanReadingRegexSingle (@SplitCleanReadingRegex) 
+                                {
+                                    my @SplitCleanReadingRegexSingle = split(/\//,$CleanReadingRegexSingle);
+                                    
+                                    # Action A09: clean summary with regex
+                                    $summarys[$startTimeIndex-1] =~ s/@SplitCleanReadingRegexSingle[0]/@SplitCleanReadingRegexSingle[1]/g;
+                                }
                                 
                                 # Action A13/06: step / 5 / search for duplicate step
                                 $step = 5;
@@ -415,8 +433,17 @@ sub ABFALL_getEvents($) {
                         Log3 $name, 5, "ABFALL_getEvents($name) - ABFALL_getEvents, 20180613.123304, 14, 19";
                         # Trace <----
                         
-                        # Action A09: clean summary with regex
-                        $summarys[$startTimeIndex-1] =~ s/$cleanReadingRegex//g;
+                        #split multiple regex struct
+                        my @SplitCleanReadingRegex = split(/;/,$cleanReadingRegex);
+
+                        #split each single regex struct
+                        foreach my $CleanReadingRegexSingle (@SplitCleanReadingRegex) 
+                        {
+                            my @SplitCleanReadingRegexSingle = split(/\//,$CleanReadingRegexSingle);
+
+                            # Action A09: clean summary with regex
+                            $summarys[$startTimeIndex-1] =~ s/@SplitCleanReadingRegexSingle[0]/@SplitCleanReadingRegexSingle[1]/g;
+                        }
                         
                         # Action A13/06: step / 5 / search for duplicate step
                         $step = 5;
